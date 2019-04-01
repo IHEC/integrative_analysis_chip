@@ -4,11 +4,11 @@ See the ENCODE reference for input format: https://github.com/ENCODE-DCC/chip-se
 
 * For 75bp PET (histone) ChIP-Seq:
 
-See the configuration see example `cemt0007_h3k4me3_mnt_ext_0.json` provided. 
+See the configuration in example `cemt0007_h3k4me3_mnt_ext_0.json` provided. 
 
 * For readlengths longer than 75bp PET (histone) ChIP-Seq:
 
-Trim fastq to 75bp pre-alignment using trimfastq.py from the singularity pipeline image (also: https://github.com/ENCODE-DCC/chip-seq-pipeline2/blob/master/src/trimfastq.py). Use 
+Trim fastq to 75bp pre-alignment using trimfastq.py from the singularity pipeline image (also: https://github.com/ENCODE-DCC/chip-seq-pipeline2/blob/master/src/trimfastq.py). Usage: 
 
     Singularity chip_seq_pipeline_v1_1_2.simg:~> python /software/chip-seq-pipeline/src/trimfastq.py 
         usage: python /software/chip-seq-pipeline/src/trimfastq.py <inputfilename> <bpToKeep | max> [-trim5 bp] [-flowcellID flowcell] [-addEnd 1 | 2] [-replace string newstring | blank] [-renameIDs prefix] [-stdout]
