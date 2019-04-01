@@ -20,7 +20,7 @@ Run `chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
 
 ## Pulling Singularity image and generating wrapper scripts
 
-Then run `python chip.py -pullimage -bindpwd` . Bind pwd will mount the current directory (equivalent to arguments `-B $PWD`). 
+Then run `python chip.py -pullimage -bindpwd` . Bind pwd will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise see `-pwd2ext0` option that binds $PWD to `/mnt/ext_0`. 
 
 This will write:
 
@@ -32,7 +32,7 @@ This will write:
 
 * singularity_wrapper.sh
 
-If you are running in `Local` mode using using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_1`, `$PWD/data_a` as `/mnt/ext_2` and so on. It binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and shift other bind points further along `ext_$i`'s.
+If you are running in `Local` mode using using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_0`, `$PWD/data_a` as `/mnt/ext_1` and so on, and it binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and shift other bind points further along `ext_$i`'s.
 
 For example, 
 
@@ -42,7 +42,7 @@ will set up all binds so that after downloading the cemt0007 test data, you can 
 
     $ ./singularity_wrapper.sh cemt0007_h3k27me3_mnt_ext_0.json
 
-without needing to do `chip.py -maketests` as later described.  
+without needing to do `chip.py -maketests` as later described.   
 
 This will also create the singularity image in `./images` .
 
