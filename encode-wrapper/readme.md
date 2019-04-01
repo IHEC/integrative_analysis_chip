@@ -20,6 +20,8 @@ Run `chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
 
 ## Pulling Singularity image and generating wrapper scripts
 
+Check singularity version with `singularity --version` to make sure it's at least `2.5.2` .
+
 Then run `python chip.py -pullimage -bindpwd` . Bind pwd will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise see `-pwd2ext0` option that binds $PWD to `/mnt/ext_0`. 
 
 This will write:
@@ -50,11 +52,11 @@ Do `chmod +x ./*sh`
 
 You can pass `-nobuild` if you hust want to regenerate the wrapper scripts without pulling the singularity image again. 
 
-Check singularity version with `singularity --version` to make sure it's at least `2.5.2` .
+If you did not use `python ./chip.py -pullimage -bindpwd -pwd2ext0 $PWD/v2/ihec` then you will not be able to use `cemt0007_h3k*_mnt_ext_0.json` for tests, as the test data may not be mapped to `/ext/mnt_0`. See running tests below. 
 
 ## Running tests
 
-To run ENCODE test tasks, do `singularity_encode_test_tasks.sh Local try1`. The first argument is the confi argument to cromwell (see ENCODE pipeline documentation). Only Local is currently supported. The second is suffix for test output directory. The output of tests will be written in `test_tasks_results_try1` . Make sure all test pass, by looking through jsons generated. `./status_encode_tasks.py` can be used here. 
+To run ENCODE test tasks, do `singularity_encode_test_tasks.sh Local try1`. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). Only Local is currently supported. The second is suffix for test output directory. The output of tests will be written in `test_tasks_results_try1` . Make sure all test pass, by looking through jsons generated. `./status_encode_tasks.py` can be used here. 
 
     python ./status_encode_tasks.py ./test_tasks_results_try1
     # ok:./test_tasks_results_try1/test_spr.test_task_output.json
