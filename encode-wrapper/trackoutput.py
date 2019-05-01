@@ -18,9 +18,13 @@ def byino(fs):
 		if not ino in hashed: hashed[ino] = list()
 		hashed[ino].append(e)
 	hashed2 = dict()
+	full_flist = dict()
 	for k,v in hashed.items():
-		hashed2[k] =  sorted(v, key = lambda x: os.path.basename(x))[0]
-	return hashed2
+		sortedfiles = sorted(v, key = lambda x: (len(x),  os.path.basename(x)) )
+		hashed2[k] =  sortedfiles[0]
+		assert not sortedfiles[0] in full_flist
+		full_flist[sortedfiles[0]] = sortedfiles[1:]
+	return (hashed2, full_flist)
 
 def md5script(hashed):
 	def cmd(f):
@@ -31,22 +35,34 @@ def md5script(hashed):
 			
 	return [cmd(v) for v in sorted(hashed.values(), key= lambda x: os.path.basename(x))]
 
-def trackoutput(base, i):
+def trackoutput(base, i, filereport):
 	logerr('# looking in {0}\n'.format(base))
 	bams = findfiles(base, '*.bam')
 	narrowpeaks = findfiles(base, '*narrow*gz')
-	bamsbyino = byino(bams)
-	peaksbyino = byino(narrowpeaks)
-	print writef('./computemd5s_{0}'.format(i),  ['#!/bin/bash'] + md5script(bamsbyino) + md5script(peaksbyino)) 
-	print findfiles(base, 'qc.html')	
+	(bamsbyino, bams_flist) = byino(bams)
+	(peaksbyino, peaks_flist) = byino(narrowpeaks)
+
+	if not filereport:
+		print writef('./computemd5s_{0}'.format(i),  ['#!/bin/bash'] + md5script(bamsbyino) + md5script(peaksbyino)) 
+	
+	qc = findfiles(base, 'qc.html')	
+	print qc
+
+	return { 'bams' : bams_flist, 'peaks' : peaks_flist, 'qc' : qc   }
+
+
 
 
 
 def main(args):
+	filereport = '-filereport' in args
+	args = [e for e in  args if not e in ['-filereport'] ]
 	targets = ['.'] if len(args) == 0 else args
+	output = list()
 	for i, arg in enumerate(targets):
-		trackoutput(arg, i)
-
+		output.append(trackoutput(arg, i, filereport))
+	if targets:
+		print jdumpf('./filereport.json', output)
 
 
 if __name__ == '__main__':
