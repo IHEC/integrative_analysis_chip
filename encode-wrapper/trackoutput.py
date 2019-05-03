@@ -11,6 +11,9 @@ def findfiles(base, pattern):
 	return [e.strip() for e in p.stdout.readlines()]
 
 
+def flistsize(fs):
+	return {e : os.stat(e).st_size for e in fs}
+
 def byino(fs):
 	hashed = dict()
 	for e in fs:
@@ -52,18 +55,44 @@ def trackoutput(base, i, filereport):
 
 
 
+def make_filereport(patterns, base):
+	logerr('# looking in {0}\n'.format(base))
+	fbyino, flist = dict(), dict()
+	for p in patterns:
+		found = findfiles(base, p)
+		(a, b) = byino(found)
+		fbyino[p] = a
+		flist[p] = b	
+	return {'byino' : fbyino, 'flist':flist}	
 
 
 def main(args):
 	filereport = '-filereport' in args
 	args = [e for e in  args if not e in ['-filereport'] ]
+	assert len(args) == 1
 	targets = ['.'] if len(args) == 0 else args
 	output = list()
+	keep = list()
+	
+	patterns = jloadf('patterns.json')
 	for i, arg in enumerate(targets):
-		output.append(trackoutput(arg, i, filereport))
-	if targets:
-		print jdumpf('./filereport.json', output)
-
+		if filereport:
+			record = make_filereport(patterns, arg) 
+			output.append(record)
+			for p in patterns:
+				print p, sum(flistsize(record['flist'][p]).values())/10**9,  'GB approx'
+				keep.extend(record['flist'][p])
+		else:
+			record = trackoutput(arg, i, filereport)
+			output.append(record)
+			keep.extend(record['bams'])
+			keep.extend(record['peaks'])
+		
+	print jdumpf('./filereport.json', output)
+	print writef('./keep.filelist', keep)	
+	print 'size',  sum(flistsize(keep).values())
+	
+	
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
