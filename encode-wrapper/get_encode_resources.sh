@@ -32,24 +32,20 @@ ifNotThenWgetAndUntar https://storage.googleapis.com/encode-pipeline-test-sample
 if [[ ${1:-"https"} == "ssh" ]]; then
   echo "using git:ssh"
   git clone ssh://git@github.com/ENCODE-DCC/chip-seq-pipeline2.git
-  git clone ssh://git@github.com/ENCODE-DCC/chip-seq-pipeline-test-data.git
+  #git clone ssh://git@github.com/ENCODE-DCC/chip-seq-pipeline-test-data.git
 else
   echo "using git:https"
   git clone https://github.com/ENCODE-DCC/chip-seq-pipeline2
-  git clone https://github.com/ENCODE-DCC/chip-seq-pipeline-test-data.git
+  #git clone https://github.com/ENCODE-DCC/chip-seq-pipeline-test-data.git
 fi
 
 cd ./chip-seq-pipeline2
 git checkout tags/v1.1.4
 cd -
 
-
-
-#git clone https://github.com/ENCODE-DCC/chip-seq-pipeline2
-#git clone ssh://git@github.com/ENCODE-DCC/chip-seq-pipeline2.git
-
-#git clone https://github.com/ENCODE-DCC/chip-seq-pipeline-test-data.git
-#git clone ssh://git@github.com/ENCODE-DCC/chip-seq-pipeline-test-data.git
+wget https://github.com/ENCODE-DCC/chip-seq-pipeline-test-data/archive/v1.1.6.tar.gz
+tar xvzf ./v1.1.6.tar.gz 
+mv chip-seq-pipeline-test-data-1.1.6 chip-seq-pipeline-test-data
 
 mv chip-seq-pipeline-test-data ./chip-seq-pipeline2/test/test_task
 
