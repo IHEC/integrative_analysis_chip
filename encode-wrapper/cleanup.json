@@ -1,4 +1,9 @@
-[
+{
+
+"delete": ["*.fastq.gz", "*.fastq", "*fasta.tar", "*.tagAlign.gz"],
+
+
+"patterns":[
 	"*.bb", "*.bw", "*.bigwig", "*.bigbed", "*narrowPeak.hammock.gz*", "*.badReads", "*fasta.tar",
 	"*.fastq.gz", "*.fastq",
     "*merge*fastq*R*.fastq.gz",
@@ -52,3 +57,4 @@
     "*qc.html",
     "*qc.json"
 ]
+}
