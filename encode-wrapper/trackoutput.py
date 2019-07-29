@@ -75,13 +75,16 @@ def main(args):
 	assert len(args) == 1, '__only_one_target_directory_at_a_time__'
 
 	arg = args[0]
-
+		
 	config = jloadf('cleanup.json')
 	patterns = config["patterns"]
 	assert not "extra" in patterns
 	output = make_filereport(patterns, arg) 
 	short_out = {k: sorted(output['flist'][k].keys()) for k in output['flist']}
 	allfiles = listfiles(arg)
+
+
+	
 
 	patternfiles = list()
 	for p in patterns:
@@ -95,7 +98,21 @@ def main(args):
 	print jdumpf('./filereport.json', output)
 	print jdumpf('./file_shortreport.json', short_out)
 	
-		
+	rmlist = list()
+	for ftype in config["delete"]:
+		for k in record['flist'][ftype]:
+			rmlist.extend(record['flist'][ftype][k])
+			rmlist.append(k)
+
+	keep = list()
+	for k in record['flist']:
+		if not k in config['delete']:
+			keep.extend([e for e in  record['flist'][k].keys() if not e in rmlist])
+	keep = sorted(list(set(keep)))
+
+
+	print dumpf('./delete.list', '\n'.join(rmlist) + '\n')	
+	print dumpf('./masterfiles.list', '\n'.join(keep) + '\n')
 	print jdumpf('./unrecognized_files.json', extra)
 
 	#print 'size',  sum(flistsize(keep).values())
