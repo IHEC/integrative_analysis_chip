@@ -34,6 +34,8 @@ This will write:
 
 * singularity_wrapper.sh
 
+* trackoutput.sh
+
 If you are running in `Local` mode using using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_0`, `$PWD/data_a` as `/mnt/ext_1` and so on, and it binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and shift other bind points further along `ext_$i`'s.
 
 For example, 
@@ -91,13 +93,13 @@ IHEC tests can be run with:
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. Currently the only local mode is supported for singularity. The ENCODE documentation discusses other modes. 
 
-To compute md5s of generated file, use `trackoutput.py <output_dir_1> ...`. This will locate peak calls and bam files, and generate scripts `computemd5s_$i` to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names. 
+To compute md5s of generated file, use `computemd5s.py <output_dir> <script_prefix>`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names. 
 
 As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `$PWD/h3k4me3_out`. So do 
 
-    python trackoutput.py $PWD/h3k4me3_out
-	chmod +x ./computemd5s_0
-	./computemd5s_0 > log_h3k4me3
+    python computemd5s.py $PWD/h3k4me3_out _test
+	chmod +x ./computemd5s_test
+	./computemd5s_test > log_h3k4me3
 	python status_cemt.py log_h3k4me3 expected_md5s_h3k4me3.json 
 
 This will match md5s for cemt0007 H3K4me3 analysis. And similarly for H3K27me3. 
@@ -124,7 +126,7 @@ This will match md5s for cemt0007 H3K4me3 analysis. And similarly for H3K27me3.
     }
 
 
-
+See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what files are to be copied over. This list will be in `masterfiles.list`
 
 
 
