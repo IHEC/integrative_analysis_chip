@@ -58,13 +58,13 @@ def trackoutput(base, i, filereport):
 
 
 def main(args):
-	assert len(args) == 1, '__only_one_target_directory_at_a_time__'
-	targets = ['.'] if len(args) == 0 else args
+	assert len(args) == 2, '__only_one_target_directory_at_a_time__'
+	[targets, tag] = args #['.'] if len(args) == 0 else args
 	output = list()
 	keep = list()
 	
-	for i, arg in enumerate(targets):
-		record = trackoutput(arg, i, False)
+	for i, arg in enumerate([targets]):
+		record = trackoutput(arg, tag, False)
 		output.append(record)
 		keep.extend(record['bams'])
 		keep.extend(record['peaks'])
