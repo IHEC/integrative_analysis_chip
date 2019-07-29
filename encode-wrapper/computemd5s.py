@@ -5,13 +5,9 @@ import sys
 
 
 def findfiles(base, pattern):
-	cmd = "find {0} -iname '{1}'".format(base, pattern)
+	cmd = "find {0} -name '{1}'".format(base, pattern)
 	print cmd
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	return [e.strip() for e in p.stdout.readlines()]
-
-def listfiles(base):
-	p = subprocess.Popen("find {0}  -type f".format(base), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	return [e.strip() for e in p.stdout.readlines()]
 
 
@@ -55,50 +51,27 @@ def trackoutput(base, i, filereport):
 	qc = findfiles(base, 'qc.html')	
 	print qc
 
-	return { 'bams' : bams_flist, 'peaks' : peaks_flist, 'qc' : byino(qc)[1] }
+	return { 'bams' : bams_flist, 'peaks' : peaks_flist, 'qc' : byino(qc)[1]}
 
 
 
-def make_filereport(patterns, base):
-	logerr('# looking in {0}\n'.format(base))
-	fbyino, flist = dict(), dict()
-	for p in patterns:
-		found = findfiles(base, p)
-		(a, b) = byino(found)
-		fbyino[p] = a
-		flist[p] = b	
-	return {'byino' : fbyino, 'flist':flist}	
 
 
 def main(args):
-	filereport = True
 	assert len(args) == 1, '__only_one_target_directory_at_a_time__'
-
-	arg = args[0]
-
-	config = jloadf('cleanup.json')
-	patterns = config["patterns"]
-	assert not "extra" in patterns
-	output = make_filereport(patterns, arg) 
-	short_out = {k: sorted(output['flist'][k].keys()) for k in output['flist']}
-	allfiles = listfiles(arg)
-
-	patternfiles = list()
-	for p in patterns:
-		record = output
-		print p, sum(flistsize(record['flist'][p]).values())/10**9,  'GB approx'
-		patternfiles.extend(record['flist'][p].keys() +  [e for k in record['flist'][p]  for e in record['flist'][p][k]]    ) 
-
+	targets = ['.'] if len(args) == 0 else args
+	output = list()
+	keep = list()
 	
-	extra = [f for f in allfiles if not f in patternfiles]
-
-	print jdumpf('./filereport.json', output)
-	print jdumpf('./file_shortreport.json', short_out)
-	
+	for i, arg in enumerate(targets):
+		record = trackoutput(arg, i, False)
+		output.append(record)
+		keep.extend(record['bams'])
+		keep.extend(record['peaks'])
 		
-	print jdumpf('./unrecognized_files.json', extra)
-
-	#print 'size',  sum(flistsize(keep).values())
+	print jdumpf('./filereport.json', output)
+	print jdumpf('./file_shortreport.json', map(lambda o: {k: sorted(o[k].keys()) for k in o}, output))
+	print 'size',  sum(flistsize(keep).values())
 	
 	
 
