@@ -126,15 +126,12 @@ This will match md5s for cemt0007 H3K4me3 analysis. And similarly for H3K27me3.
     }
 
 
-See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what files are to be copied over. This list will be in `masterfiles.list`
+See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what files are to be copied over. `trackoutput.sh` will write following lists of files:
 
-
-
-
-
-
-
-
-
+    ./delete.list              # files okay to delete
+    ./masterfiles.list         # files that will be kept
+    ./extraneous_cromwell.list # files that are likely extraneous cromwell files
+    ./unresolvedfiles.list     # files that will be kept, but cannot be accessed as they may be hardlinks that cannot be resolved
+    ./unexpectedfiles.list     # extraneous cromwell files that do not match patterns for expected cromwell files
 
 

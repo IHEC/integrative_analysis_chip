@@ -14,6 +14,12 @@ def check_extraneous(patterns, flist):
 	unexpected = [f for f in flist if not matched(os.path.basename(f))]  
 	return unexpected
 
+def check_fileskept(keep):
+	for f in keep:
+		stats =  os.stat(f) # this fill choke if there are issue with resolving hardlinking
+		print '#keeping... ', os.path.basename(f), 'size', stats.st_size , 'ino', stats.st_ino
+
+
 
 def findfiles(base, pattern):
 	cmd = "find {0} -iname '{1}'".format(base, pattern)
@@ -31,8 +37,15 @@ def flistsize(fs):
 
 def byino(fs):
 	hashed = dict()
+	negino = -1
 	for e in fs:
-		ino = os.stat(e).st_ino 
+		try:
+			ino = os.stat(e).st_ino
+		except OSError as err:
+			logerr('# WARN.. {0}\n'.format(str(err))) 
+			ino = negino # use a new negative ino for each unresolved ino
+			negino = negino - 1
+			
 		if not ino in hashed: hashed[ino] = list()
 		hashed[ino].append(e)
 	hashed2 = dict()
@@ -62,7 +75,7 @@ def main(args):
 
 	arg = args[0]
 		
-	config = jloadf('cleanup.json')
+	config = jloadf('./cleanup.json')
 	patterns = config["patterns"]
 	assert not "extra" in patterns
 	output = make_filereport(patterns, arg) 
@@ -73,11 +86,12 @@ def main(args):
 	
 
 	patternfiles = list()
+	unresolvedlinks = list()
 	for p in patterns:
 		record = output
-		print p, sum(flistsize(record['flist'][p]).values())/10**9,  'GB approx'
+		#print p, sum(flistsize(record['flist'][p]).values())/10**9,  'GB approx'
 		patternfiles.extend(record['flist'][p].keys() +  [e for k in record['flist'][p]  for e in record['flist'][p][k]]    ) 
-
+		unresolvedlinks.extend([record['byino'][p][z] for z in record['byino'][p] if z < 0]) 
 	
 	extra = [f for f in allfiles if not f in patternfiles]
 
@@ -96,14 +110,18 @@ def main(args):
 			keep.extend([e for e in  record['flist'][k].keys() if not e in rmlist])
 	keep = sorted(list(set(keep)))
 
+	unexpected = check_extraneous(config["extraneous"], extra)
 
 	print dumpf('./delete.list', '\n'.join(rmlist) + '\n')	
 	print dumpf('./masterfiles.list', '\n'.join(keep) + '\n')
-	print jdumpf('./unrecognized_files.json', extra)
+	print dumpf('./extraneous_cromwell.list', '\n'.join(extra) + '\n')
+	print dumpf('./unresolvedfiles.list', '\n'.join(unresolvedlinks) + '\n')
+	print dumpf('./unexpectedfiles.list', '\n'.join(unexpected) + '\n')
+	
+	check_fileskept(keep)
 
-	unexpected = check_extraneous(config["extraneous"], extra) 
-	print "unexpected", unexpected
-
+	print "unexpected files?", len(unexpected) > 0 
+	print "unresolved files?", len(unresolvedlinks) > 0
 	#print 'size',  sum(flistsize(keep).values())
 	
 	
