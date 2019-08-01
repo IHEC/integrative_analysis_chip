@@ -25,12 +25,17 @@ def findfiles(base, pattern):
 	cmd = "find {0} -iname '{1}'".format(base, pattern)
 	print cmd
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	return [e.strip() for e in p.stdout.readlines()]
+	#assert p.returncode == 0
+	found = [e.strip() for e in p.stdout.readlines()]
+	for e in found: assert len(e.split()) == 1
+	return found
 
 def listfiles(base):
 	p = subprocess.Popen("find {0}  -type f".format(base), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	return [e.strip() for e in p.stdout.readlines()]
-
+	#assert p.returncode == 0
+	found = [e.strip() for e in p.stdout.readlines()]
+	for e in found: assert len(e.split()) == 1
+	return found
 
 def flistsize(fs):
 	return {e : os.stat(e).st_size for e in fs}
