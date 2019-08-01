@@ -134,7 +134,7 @@ def write_testrun(config):
 		logerr('#written:' +  dumpf('{0}/testrun_tasks.sh'.format(config['home']),  infile.read().format(**config)) + '\n')
 	
 	logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '#!/bin/bash\n\necho "home:$PWD"\n\nwhich singularity\n\nsingularity exec {additional_binds} {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} "${{1:-Local}}" ${{@:2}}\n\n'.format(**config)))
-	logerrn(dumpf('./trackoutput.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\n\nsingularity exec {additional_binds} {container_image} python trackoutput.py $?\n\n'.format(**config)))	
+	logerrn(dumpf('./trackoutput.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\n\nsingularity exec {additional_binds} {container_image} python trackoutput.py $@\n\n'.format(**config)))	
 	return dumpf('./singularity_wrapper.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\nBACKEND="{backend_default}"\n\nsingularity exec {additional_binds} {container_image} {home_mnt}/piperunner.sh {home_mnt} $1 $BACKEND\n\n'.format(**config))
 
 
