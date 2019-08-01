@@ -1,7 +1,18 @@
 from utilsm import *
 import os
+import re
 import sys
 
+
+
+def check_extraneous(patterns, flist):
+	regex = [re.compile(e) for e in patterns]
+	def matched(x):
+		for e in regex:
+			if e.findall(x): return True
+		return False
+	unexpected = [f for f in flist if not matched(os.path.basename(f))]  
+	return unexpected
 
 
 def findfiles(base, pattern):
@@ -32,31 +43,6 @@ def byino(fs):
 		assert not sortedfiles[0] in full_flist
 		full_flist[sortedfiles[0]] = sortedfiles[1:]
 	return (hashed2, full_flist)
-
-def md5script(hashed):
-	def cmd(f):
-		if f.strip().endswith('bam'):
-			return 'echo "{1} $(./headlessbam_md5 {0})"'.format(f, os.path.basename(f))
-		else:
-			return 'echo "{1} $(md5sum {0})"'.format(f, os.path.basename(f))
-			
-	return [cmd(v) for v in sorted(hashed.values(), key= lambda x: os.path.basename(x))]
-
-def trackoutput(base, i, filereport):
-	logerr('# looking in {0}\n'.format(base))
-	bams = findfiles(base, '*.bam')
-	narrowpeaks = findfiles(base, '*narrow*gz')
-	(bamsbyino, bams_flist) = byino(bams)
-	(peaksbyino, peaks_flist) = byino(narrowpeaks)
-
-	if not filereport:
-		print writef('./computemd5s_{0}'.format(i),  ['#!/bin/bash'] + md5script(bamsbyino) + md5script(peaksbyino)) 
-	
-	qc = findfiles(base, 'qc.html')	
-	print qc
-
-	return { 'bams' : bams_flist, 'peaks' : peaks_flist, 'qc' : byino(qc)[1] }
-
 
 
 def make_filereport(patterns, base):
@@ -114,6 +100,9 @@ def main(args):
 	print dumpf('./delete.list', '\n'.join(rmlist) + '\n')	
 	print dumpf('./masterfiles.list', '\n'.join(keep) + '\n')
 	print jdumpf('./unrecognized_files.json', extra)
+
+	unexpected = check_extraneous(config["extraneous"], extra) 
+	print "unexpected", unexpected
 
 	#print 'size',  sum(flistsize(keep).values())
 	

@@ -10,7 +10,7 @@ chmod +x $H/testrun_tasks.sh
 testsOut=$H/test_tasks_results_"$tag"
 mkdir $testsOut || true
 cd $BASE/chip-seq-pipeline2/test/test_task
-echo "__container__:$BASE,$BACKEND,$PWD"
+echo "__container__:$BASE,$BACKEND,$PWD $(which python) $(which java)  $PATH $PYTHONPATH"
 
 for t in test_bam2ta test_bwa  test_choose_ctl test_filter test_idr test_macs2 test_merge_fastq test_overlap test_pool_ta test_reproducibility test_spp test_spr test_trim_fastq test_xcor; do
 #for t in test_bam2ta; do

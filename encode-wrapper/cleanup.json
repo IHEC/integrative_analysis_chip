@@ -74,5 +74,19 @@
         "*conservative_peak.bb",
         "*qc.html",
         "*qc.json"
-    ]
+    ],
+    "extraneous": [ "glob-.*\\.list",
+	"hg38\\.blacklist\\.bed\\.gz",
+	"hg38\\.chrom\\.sizes",
+	"hg38_local\\.tsv",
+	"null", "rc", "script", "script\\.background",
+	"script\\.submit",
+	".*java.so",
+	"stderr",
+	"stderr\\.background",
+	"stdout",
+	"stdout\\.background",
+	"tmp\\.tsv",
+	"write_tsv_.*\\.tmp", "cromwell_glob_control_file"
+	]
 }
