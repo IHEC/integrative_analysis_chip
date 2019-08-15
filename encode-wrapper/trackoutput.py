@@ -89,7 +89,7 @@ def main(args):
 
 
 	
-
+	
 	patternfiles = list()
 	unresolvedlinks = list()
 	for p in patterns:
@@ -104,15 +104,26 @@ def main(args):
 	print jdumpf('./file_shortreport.json', short_out)
 	
 	rmlist = list()
+	rmsize = 0
 	for ftype in config["delete"]:
 		for k in record['flist'][ftype]:
 			rmlist.extend(record['flist'][ftype][k])
 			rmlist.append(k)
+			try:
+				rmsize = rmsize + os.stat(k).st_size
+			except Exception as err:
+				print 'WARNING: __cannot_read_filesize__:', k, err
 
-	keep = list()
+	
+	keep, redundant = list(), list()
 	for k in record['flist']:
 		if not k in config['delete']:
-			keep.extend([e for e in  record['flist'][k].keys() if not e in rmlist])
+			keeping = [e for e in  record['flist'][k].keys() if not e in rmlist]
+			keep.extend(keeping)
+			for z in keeping:
+				redundant.extend(record['flist'][k][z]) 
+
+		
 	keep = sorted(list(set(keep)))
 
 	unexpected = check_extraneous(config["extraneous"], extra)
@@ -122,7 +133,8 @@ def main(args):
 	print dumpf('./extraneous_cromwell.list', '\n'.join(extra) + '\n')
 	print dumpf('./unresolvedfiles.list', '\n'.join(unresolvedlinks) + '\n')
 	print dumpf('./unexpectedfiles.list', '\n'.join(unexpected) + '\n')
-	
+	print dumpf('./redundantlinks.list', '\n'.join(redundant) + '\n')
+
 	check_fileskept(keep)
 
 	print "unexpected files?", len(unexpected) > 0 
@@ -130,7 +142,7 @@ def main(args):
 	#print 'size',  sum(flistsize(keep).values())
 	
 	
-
+	print 'delete.list = ', rmsize
 if __name__ == '__main__':
 	main(sys.argv[1:])
 
