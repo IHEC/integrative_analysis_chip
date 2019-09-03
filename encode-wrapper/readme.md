@@ -134,4 +134,4 @@ See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what f
     ./unresolvedfiles.list     # files that will be kept, but cannot be accessed as they may be hardlinks that cannot be resolved
     ./unexpectedfiles.list     # extraneous cromwell files that do not match patterns for expected cromwell files
 
-
+The expected workflow if to remove files from `delete.list` only (in case diskspace is an issue). And then symlink files from `masterfiles.list` in an empty directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.  
