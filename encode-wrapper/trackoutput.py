@@ -2,7 +2,7 @@ from utilsm import *
 import os
 import re
 import sys
-
+from config import Config
 
 
 def check_extraneous(patterns, flist):
@@ -19,8 +19,6 @@ def check_fileskept(keep):
 		stats =  os.stat(f) # this fill choke if there are issue with resolving hardlinking
 		print '#keeping... ', os.path.basename(f), 'size', stats.st_size , 'ino', stats.st_ino
 
-
-
 def findfiles(base, pattern):
 	cmd = "find {0} -iname '{1}'".format(base, pattern)
 	print cmd
@@ -31,7 +29,7 @@ def findfiles(base, pattern):
 	return found
 
 def listfiles(base):
-	p = subprocess.Popen("find {0}  -type f".format(base), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+	p = subprocess.Popen("find {0} -type f".format(base), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	#assert p.returncode == 0
 	found = [e.strip() for e in p.stdout.readlines()]
 	for e in found: assert len(e.split()) == 1
@@ -74,19 +72,25 @@ def make_filereport(patterns, base):
 	return {'byino' : fbyino, 'flist':flist}	
 
 
-def main(args):
+def main(cfg):
+	args = cfg.get_values()
+
 	filereport = True
-	assert len(args) == 1, '__only_one_target_directory_at_a_time__'
+	assert len(args) == 1, '__only_pass_one_target_directory_at_a_time__'
 
 	arg = args[0]
+	print '# analyzing:', arg
+	
+
 		
-	config = jloadf('./cleanup.json')
+	config = jloadf(cfg.or_else("-cleanup",   './cleanup.json'))
+	outdir = cfg.option('-outdir')
+	
 	patterns = config["patterns"]
 	assert not "extra" in patterns
 	output = make_filereport(patterns, arg) 
 	short_out = {k: sorted(output['flist'][k].keys()) for k in output['flist']}
 	allfiles = listfiles(arg)
-
 
 	
 	
@@ -100,8 +104,8 @@ def main(args):
 	
 	extra = [f for f in allfiles if not f in patternfiles]
 
-	print jdumpf('./filereport.json', output)
-	print jdumpf('./file_shortreport.json', short_out)
+	print jdumpf(outdir + '/filereport.json', output)
+	print jdumpf(outdir + '/file_shortreport.json', short_out)
 	
 	rmlist = list()
 	rmsize = 0
@@ -128,12 +132,12 @@ def main(args):
 
 	unexpected = check_extraneous(config["extraneous"], extra)
 
-	print dumpf('./delete.list', '\n'.join(rmlist) + '\n')	
-	print dumpf('./masterfiles.list', '\n'.join(keep) + '\n')
-	print dumpf('./extraneous_cromwell.list', '\n'.join(extra) + '\n')
-	print dumpf('./unresolvedfiles.list', '\n'.join(unresolvedlinks) + '\n')
-	print dumpf('./unexpectedfiles.list', '\n'.join(unexpected) + '\n')
-	print dumpf('./redundantlinks.list', '\n'.join(redundant) + '\n')
+	print dumpf(outdir + '/delete.list', '\n'.join(rmlist) + '\n')	
+	print dumpf(outdir + '/masterfiles.list', '\n'.join(keep) + '\n')
+	print dumpf(outdir + '/extraneous_cromwell.list', '\n'.join(extra) + '\n')
+	print dumpf(outdir + '/unresolvedfiles.list', '\n'.join(unresolvedlinks) + '\n')
+	print dumpf(outdir + '/unexpectedfiles.list', '\n'.join(unexpected) + '\n')
+	print dumpf(outdir + '/redundantlinks.list', '\n'.join(redundant) + '\n')
 
 	check_fileskept(keep)
 
@@ -141,10 +145,11 @@ def main(args):
 	print "unresolved files?", len(unresolvedlinks) > 0
 	#print 'size',  sum(flistsize(keep).values())
 	
-	
 	print 'delete.list = ', rmsize
-if __name__ == '__main__':
-	main(sys.argv[1:])
+	print '# analyzed:', arg
 
+
+if __name__ == '__main__':
+	main(Config.sys())
 
 
