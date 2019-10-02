@@ -28,7 +28,11 @@ This will write:
 
 * piperunner.sh
 
+* piperunner_ihec_slurm_singularity.sh
+
 * testrun_tasks.sh
+
+* testrun_tasks_ihec_slurm_singularity.sh
 
 * singularity_encode_test_tasks.sh
 
@@ -99,11 +103,11 @@ Or using SLURM with:
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes. 
 
-To compute md5s of generated file, use `computemd5s.py <output_dir> <script_prefix>`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names. 
+To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names. 
 
 As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `$PWD/h3k4me3_out`. So do 
 
-    python computemd5s.py $PWD/h3k4me3_out _test
+    python computemd5s.py $PWD/h3k4me3_out test
 	chmod +x ./computemd5s_test
 	./computemd5s_test > log_h3k4me3
 	python status_cemt.py log_h3k4me3 expected_md5s_h3k4me3.json 
