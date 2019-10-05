@@ -2,5 +2,5 @@
 
 
 
-m="$(samtools view $1 |  md5sum)"
+m="$(sambamba view $1 |  md5sum)"
 echo $m

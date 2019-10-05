@@ -127,16 +127,22 @@ def make_tests(args):
 	for f in mcf10a:
 		print 'written:', fix(f, base)
 
-def write_testrun(config):
-	with open('testrun_template.sh') as infile:
-		logerr('#written:' + dumpf('{0}/piperunner.sh'.format(config['home']),  infile.read().format(**config)) + '\n')
-	with open('testrun_tasks_template.sh') as infile:
-		logerr('#written:' +  dumpf('{0}/testrun_tasks.sh'.format(config['home']),  infile.read().format(**config)) + '\n')
-	
-	logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '#!/bin/bash\n\necho "home:$PWD"\n\nwhich singularity\n\nsingularity exec {additional_binds} {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} "${{1:-Local}}" ${{@:2}}\n\n'.format(**config)))
-	logerrn(dumpf('./trackoutput.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\n\nsingularity exec {additional_binds} {container_image} python trackoutput.py $@\n\n'.format(**config)))	
-	return dumpf('./singularity_wrapper.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\nBACKEND="{backend_default}"\n\nsingularity exec {additional_binds} {container_image} {home_mnt}/piperunner.sh {home_mnt} $1 $BACKEND\n\n'.format(**config))
+def write_testrun(l_config):
+	for i in range(len(l_config)):# config in l_config:
+		if i == 0:
+			with open('testrun_template.sh') as infile:
+				logerr('#written:' + dumpf('{0}/piperunner.sh'.format(l_config[i]['home']),  infile.read().format(**l_config[i])) + '\n')
+			with open('testrun_tasks_template.sh') as infile:
+				logerr('#written:' +  dumpf('{0}/testrun_tasks.sh'.format(l_config[i]['home']),  infile.read().format(**l_config[i])) + '\n')
+			logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '#!/bin/bash\n\necho "home:$PWD"\n\nwhich singularity\n\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} Local ${{@:1}}\n\n'.format(**l_config[i])))
+			logerrn(dumpf('./singularity_wrapper.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\nBACKEND="{backend_default}"\n\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh {home_mnt} Local $BACKEND\n\n'.format(**l_config[i])))
+		else:
+			with open('testrun_template.sh') as infile:
+				logerr('#written:' + dumpf('{0}/piperunner_ihec_slurm_singularity.sh'.format(l_config[i]['home']),  infile.read().format(**l_config[i])) + '\n')
+			with open('testrun_tasks_template.sh') as infile:
+				logerr('#written:' +  dumpf('{0}/testrun_tasks_ihec_slurm_singularity.sh'.format(l_config[i]['home']),  infile.read().format(**l_config[i])) + '\n')
 
+	return dumpf('./trackoutput.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\n\nsingularity exec {additional_binds} {container_image} python trackoutput.py $@\n\n'.format(**l_config[i]))
 
 
 def singularity_pull_image(home, config, binds, debug=debug_mode):
@@ -176,17 +182,28 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
 		raise Exception('__couldNotCopy__:chip.wdl likey current directory is not bound in the container... ' + binds)
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./v2/chip.wdl\n')
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./chip.wdl\n')
-	return {
-		'additional_binds' : binds,
-		"container_image":image_path,
-		"home" : home,
-		"home_mnt": home_mnt,
-		"bind_opt": "${3:-}",
-		"backend_default" : "${2:-Local}",
-		"container" : container_mnt,   #os.path.abspath(container),
-		"wdl" : "{0}/v2/chip.wdl".format(home_mnt),
-		"backend" : "{0}/backend.conf".format(home_mnt)
-	}
+	return [{
+			'additional_binds' : binds,
+			"container_image":image_path,
+			"home" : home,
+			"home_mnt": home_mnt,
+			"bind_opt": "${3:-}",
+			"backend_default" : "${2:-Local}",
+			"container" : container_mnt,   #os.path.abspath(container),
+			"wdl" : "{0}/v2/chip.wdl".format(home_mnt),
+			"backend" : "{0}/backend.conf".format(home_mnt)
+			},
+			{
+			'additional_binds' : binds,
+			"container_image":image_path,
+			"home" : home,
+			"home_mnt": home_mnt,
+			"bind_opt": "${3:-}",
+			"backend_default" : "${2:-Local}",
+			"container" : container_mnt,   #os.path.abspath(container),
+			"wdl" : "{0}/v2/chip.wdl".format(home_mnt),
+			"backend" : "{0}/backend_ihec_slurm_singularity.conf".format(home_mnt)
+			}]
 
 
 def bindargs(args):
@@ -233,8 +250,8 @@ def main(args):
 	if '-pullimage' in args:
 		params = [os.getcwd()] + [e for e in args if not e[0] == '-']
 		binds = bindargs(args)
-		container_config = singularity_pull_image(home, args, binds, debug = False)
-		container = write_testrun(container_config)
+		l_container_config = singularity_pull_image(home, args, binds, debug = False)
+		container = write_testrun(l_container_config)
 		logerr('# container: {0}\n'.format(container))
 	
 	if '-maketests' in args:
