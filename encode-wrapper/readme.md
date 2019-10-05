@@ -40,7 +40,7 @@ This will write:
 
 * trackoutput.sh
 
-If you are running in `Local` mode using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_0`, `$PWD/data_a` as `/mnt/ext_1` and so on, and it binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and shift other bind points further along `ext_$i`'s.
+If you are running in `Local` mode using using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_1`, `$PWD/data_a` as `/mnt/ext_2` and so on, and it binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and other bind points further along `ext_$i`'s.
 
 For example,
 
