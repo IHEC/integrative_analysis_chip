@@ -95,7 +95,7 @@ Doing `python chip.py  -maketests` will write ChIP test configurations (you also
 
 IHEC tests on Local mode can be run with:
 
-`./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json`
+`./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`
 
 Or using SLURM with:
 
