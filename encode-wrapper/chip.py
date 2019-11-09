@@ -135,7 +135,7 @@ def write_testrun(l_config):
 			with open('testrun_tasks_template.sh') as infile:
 				logerr('#written:' +  dumpf('{0}/testrun_tasks.sh'.format(l_config[i]['home']),  infile.read().format(**l_config[i])) + '\n')
 			logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '#!/bin/bash\n\necho "home:$PWD"\n\nwhich singularity\n\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} Local ${{@:1}}\n\n'.format(**l_config[i])))
-			logerrn(dumpf('./singularity_wrapper.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\nBACKEND="{backend_default}"\n\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $BACKEND $2\n\n'.format(**l_config[i])))
+			logerrn(dumpf('./singularity_wrapper.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\nBACKEND="{backend_default}"\n\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $BACKEND\n\n'.format(**l_config[i])))
 		else:
 			with open('testrun_template.sh') as infile:
 				logerr('#written:' + dumpf('{0}/piperunner_ihec_slurm_singularity.sh'.format(l_config[i]['home']),  infile.read().format(**l_config[i])) + '\n')
