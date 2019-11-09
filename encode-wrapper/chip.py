@@ -179,7 +179,7 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
 	shell('singularity exec {1} {0} cp /software/chip-seq-pipeline/chip.wdl {2}/v2/'.format(image_path, binds, home_mnt), assert_ok=True)
 	shell('singularity exec {1} {0} cp /software/chip-seq-pipeline/chip.wdl {2}/'.format(image_path, binds, home_mnt), assert_ok=True)
 	if not os.path.exists('./chip.wdl') or not os.path.exists('./v2/chip.wdl'):
-		raise Exception('__couldNotCopy__:chip.wdl likey current directory is not bound in the container... ' + binds)
+		raise Exception('__could_not_copy__:chip.wdl likey current directory is not bound in the container... ' + binds)
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./v2/chip.wdl\n')
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./chip.wdl\n')
 	return [{
@@ -217,7 +217,7 @@ def bindargs(args):
 			offset = 1
 		else:
 			bindpwd = '-B ' + os.getcwd()
-			offset = 0
+			offset = 1
 
 		if not params:
 			return bindpwd

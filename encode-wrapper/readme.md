@@ -28,9 +28,13 @@ These scripts require `python 3.6.8` or higher. It's assmumed that the the under
 
 Check singularity version with `singularity --version` to make sure it's at least `3.0.1`.
 
-Then run `python chip.py -pullimage`
+Then run `python chip.py -pullimage -bindpwd`
 
-This will write:
+Then run `python chip.py -pullimage -bindpwd`. `bindpwd` will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise passing `-pwd2ext0` binds $PWD to `/mnt/ext_0`.
+
+If additional paths are passed like `python chip.py -pullimage -bindpwd /some/directory_A /some/directory_B ...` then these will be mounted inside the image at `/mnt/ext_1`, `/mnt/ext_2` and so on. `/mnt/ext_0` is reserved for mounting `$PWD` if needed.   
+
+This command will write:
 
 * piperunner.sh
 
@@ -51,6 +55,8 @@ This will also create the singularity image in `./images`.
 Do `chmod +x ./*sh`.
 
 You can pass `-nobuild` if you just want to regenerate the wrapper scripts without pulling the singularity image again.
+
+`singularity_wrapper.sh` can be examined to see what mount points have been generated.
 
 
 ## Running tests
