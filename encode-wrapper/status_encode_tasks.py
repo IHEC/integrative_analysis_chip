@@ -15,9 +15,9 @@ def main(args):
 	for log in logs:
 		data = jloadf(log)
 		if not check(data):
-			print '# failed: ' + log, data['match_overall'], data["failed_task_labels"]
+			print2( '# failed: ' + log, data['match_overall'], data["failed_task_labels"])
 		else:
-			print '# ok:' + log
+			print2( '# ok:' + log)
 			n_ok +=1
 	
 	status = {
@@ -25,7 +25,7 @@ def main(args):
 		"#expected": N,
 		"#failed": N - n_ok
 	}
-	print jsonp(status)
+	print2(jsonp(status))
 
 if __name__ == '__main__':
 	main(sys.argv[1:])

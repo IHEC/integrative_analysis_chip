@@ -125,7 +125,7 @@ def make_tests(args):
 		return dumpf(out, jsonp(config).replace('{0}', base))
 	
 	for f in mcf10a:
-		print 'written:', fix(f, base)
+		print2('written:', fix(f, base))
 
 def write_testrun(l_config):
 	for i in range(len(l_config)):# config in l_config:

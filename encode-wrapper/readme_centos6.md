@@ -24,11 +24,9 @@ For running on cluster with a slurm etc see the last section on this document
 
 ## Pulling Singularity image and generating wrapper scripts
 
-These scripts require `python 3.6.8` or higher. It's assmumed that the the underlying OS support `overlayfs` so paths that do not exist on the singularity can be mounted inside singularity. CentOS6 does not have `overlayfs` support. If you need support for OS without `overlayfs` please make an issue.  
+Check singularity version with `singularity --version` to make sure it's at least `2.5.2`.
 
-Check singularity version with `singularity --version` to make sure it's at least `3.0.1`.
-
-Then run `python chip.py -pullimage`
+Then run `python chip.py -pullimage -bindpwd`. `bindpwd` will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise see `-pwd2ext0` option that binds $PWD to `/mnt/ext_0`.
 
 This will write:
 
@@ -46,12 +44,25 @@ This will write:
 
 * trackoutput.sh
 
+If you are running in `Local` mode using using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_1`, `$PWD/data_a` as `/mnt/ext_2` and so on, and it binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and other bind points further along `ext_$i`'s.
+
+For example,
+
+    python ./chip.py -pullimage -bindpwd -pwd2ext0 $PWD/v2/ihec
+
+will set up all binds so that after downloading the cemt0007 test data, you can just use `cemt0007_h3k27me3_mnt_ext_0.json` out of the box like:
+
+    $ ./singularity_wrapper.sh cemt0007_h3k27me3_mnt_ext_0.json
+
+without needing to do `chip.py -maketests` as later described.
+
 This will also create the singularity image in `./images`.
 
 Do `chmod +x ./*sh`.
 
 You can pass `-nobuild` if you just want to regenerate the wrapper scripts without pulling the singularity image again.
 
+If you did not use `python ./chip.py -pullimage -bindpwd -pwd2ext0 $PWD/v2/ihec` then you will not be able to use `cemt0007_h3k*_mnt_ext_0.json` for tests, as the test data may not be mapped to `/ext/mnt_0`. See running tests below.
 
 ## Running tests
 
@@ -141,5 +152,3 @@ See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what f
 The recommended workflow if to remove files from `delete.list` only (in case diskspace is an issue). And then symlink files from `masterfiles.list` in an empty directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
 
 It's expected that `unresolvedfiles.list` and `unexpectedfiles.list` are empty. If they are not empty, the files listed there will need to be looked at. Please review files before deleting to ensure nothing useful is removed.
-
-## Running on cluster
