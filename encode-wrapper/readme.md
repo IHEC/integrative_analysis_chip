@@ -58,6 +58,9 @@ You can pass `-nobuild` if you just want to regenerate the wrapper scripts witho
 
 `singularity_wrapper.sh` can be examined to see what mount points have been generated.
 
+For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/` generates: 
+
+    singularity exec --cleanenv -B /usr/edcc/integrative_analysis_chip/encode-wrapper,/usr/edcc/integrative_analysis_chip/encode-wrapper/v2/ihec/test_data/:/mnt/ext_1 /usr/edcc/integrative_analysis_chip/encode-wrapper/images/chip_seq_pipeline_v1_1_4.sif /usr/edcc/integrative_analysis_chip/encode-wrapper/piperunner.sh $1 $BACKEND
 
 ## Running tests
 
