@@ -155,13 +155,13 @@ This will match md5s for cemt0007 H3K4me3 analysis. And similarly for H3K27me3.
 
 See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what files are to be copied over. `trackoutput.sh` will write following lists of files:
 
-    ./delete.list              # files okay to delete
+    ./delete.list              # files that are liklely candidate to deletetion delete
     ./masterfiles.list         # files that will be kept
     ./extraneous_cromwell.list # files that are likely extraneous cromwell files
     ./unresolvedfiles.list     # files that will be kept, but cannot be accessed as they may be hardlinks that cannot be resolved
     ./unexpectedfiles.list     # extraneous cromwell files that do not match patterns for expected cromwell files
 
-The recommended workflow if to remove files from `delete.list` only (in case diskspace is an issue). And then symlink files from `masterfiles.list` in an empty directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
+The recommended workflow is to consider removing files from `delete.list` only (in case diskspace is an issue). And then symlink files from masterfiles.list (while keeping everything else) to a final analysis directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
 
 It's expected that `unresolvedfiles.list` and `unexpectedfiles.list` are empty. If they are not empty, the files listed there will need to be looked at. Please review files before deleting to ensure nothing useful is removed.
 
