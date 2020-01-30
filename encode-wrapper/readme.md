@@ -20,7 +20,11 @@ Run `python chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
 
 ## Running on cluster
 
-For running on cluster with a slurm etc see the last section on this document
+For running on cluster with a slurm etc see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1)
+
+## Memory requirements
+
+You will need 10G RAM for ENCODE tests and in excess of 60G for running the IHEC test dataset.  
 
 ## Pulling Singularity image and generating wrapper scripts
 
