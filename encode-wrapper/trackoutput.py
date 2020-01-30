@@ -85,7 +85,12 @@ def main(cfg):
 		
 	config = jloadf(cfg.or_else("-cleanup",   './cleanup.json'))
 	outdir = cfg.option('-outdir')
-	
+
+	try:
+		os.mkdir(outdir)
+	except Exception as err:
+		print2('#__could not create__' + outdir)
+
 	patterns = config["patterns"]
 	assert not "extra" in patterns
 	output = make_filereport(patterns, arg) 
