@@ -72,6 +72,8 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 
 ## Running tests
 
+### ENCODE tests
+
 To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.  If you are on HPC and prefer to use SLURM, do `./encode_test_tasks_run_ihec_slurm_singularity.sh <installation_dir> slurm_singularity try1`.
 
 You will need atleast 10G of memory for running the encode tasks. 
@@ -99,7 +101,9 @@ Make sure all test pass, by looking through jsons generated. `./status_encode_ta
         "#ok": 14
     }
 
-Doing `python chip.py  -maketests` will write ChIP test configurations (you also need to pass `-pwd2ext0` if you set `$PWD` to `/ext/mnt_0`):
+### MCF10A tests
+
+For the MCF10A data downloaded with `python chip.py -get`, doing `python chip.py -maketests` will write ChIP test configurations (you also need to pass `-pwd2ext0` if you set `$PWD` to `/ext/mnt_0`):
 
 * ./v2/ihec/cemt0007_h3k4me3.json
 
@@ -163,5 +167,5 @@ It's expected that `unresolvedfiles.list` and `unexpectedfiles.list` are empty. 
 
 ## Running on cluster
 
-While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended that the analysis when submtting to cluster using slurm (or alternatives) just submit the the a shell script containing the  `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster. Using `slurm` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity. 
+While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended that the analysis when submtting to cluster using slurm (or alternatives) just submit the the a shell script containing the  `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster (i.e. the job will run in Local mode on the node it's submitted to). Using `slurm` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity.   
 
