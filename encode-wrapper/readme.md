@@ -101,7 +101,7 @@ IHEC tests on Local mode can be run with:
 
 `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`
 
-Or using SLURM with:
+You can also use SLURM with; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
 `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`
 
