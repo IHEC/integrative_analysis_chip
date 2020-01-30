@@ -119,6 +119,8 @@ You can also use SLURM with; please see [cluster](https://github.com/IHEC/integr
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes.
 
+For these tests, the running time can be 24 hours depending on hardware. 
+
 To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names.
 
 As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `outdir=$PWD/cromwell-executions/chip/93de85aa-d581-48df-b8ae-a91a6e88a21f`. So do
@@ -153,7 +155,7 @@ This will match md5s for cemt0007 H3K4me3 analysis. And similarly for H3K27me3.
 
 ## Organizing ENCODE output
 
-See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what files are to be copied over. `trackoutput.sh` will write following lists of files:
+See output of `./trackoutput.sh <cromwell_directory_for_analysis> -outdir:$outdir`  to see what files are to be copied over. `trackoutput.sh` will write following lists of files (in `$outdir`):
 
     ./delete.list              # files that are liklely candidate to deletetion delete
     ./masterfiles.list         # files that will be kept
@@ -161,9 +163,12 @@ See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what f
     ./unresolvedfiles.list     # files that will be kept, but cannot be accessed as they may be hardlinks that cannot be resolved
     ./unexpectedfiles.list     # extraneous cromwell files that do not match patterns for expected cromwell files
 
-The recommended workflow is to consider removing files from `delete.list` only (in case diskspace is an issue). And then symlink files from masterfiles.list (while keeping everything else) to a final analysis directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
+Cromwell generates large number of files by creating hardlinks; this script attempts to resolve these links and keeping only one copy of each. `./unresolvedfiles.list` contains hardlinks that the script is unable to resolve because of mount issues or othet OS errors.  
 
 It's expected that `unresolvedfiles.list` and `unexpectedfiles.list` are empty. If they are not empty, the files listed there will need to be looked at. Please review files before deleting to ensure nothing useful is removed.
+
+The recommended workflow is to consider removing files from `delete.list` only (in case diskspace is an issue). And then symlink files from masterfiles.list (while keeping everything else) to a final analysis directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
+
 
 ## Running on cluster
 
