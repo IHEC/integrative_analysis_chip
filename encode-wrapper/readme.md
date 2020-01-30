@@ -125,7 +125,7 @@ To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suff
 
 As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `outdir=$PWD/cromwell-executions/chip/93de85aa-d581-48df-b8ae-a91a6e88a21f`. So do
 
-    python computemd5s.py $outdir test
+    python computemd5s.py $outdir test # the first must be the cromwell directory for the analysis, the second a suffix for the script
 	chmod +x ./computemd5s_test
 	./computemd5s_test > log_h3k4me3
 	python status_cemt.py log_h3k4me3 expected_md5s_h3k4me3.json 

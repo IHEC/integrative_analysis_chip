@@ -8,7 +8,7 @@ def findfiles(base, pattern):
 	cmd = "find {0} -name '{1}'".format(base, pattern)
 	print2(cmd)
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	return [e.strip() for e in p.stdout.readlines()]
+	return [e.decode("utf-8").strip() for e in p.stdout.readlines()]
 
 
 def flistsize(fs):
