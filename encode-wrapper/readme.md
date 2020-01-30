@@ -111,7 +111,7 @@ For the MCF10A data downloaded with `python chip.py -get`, doing `python chip.py
 
 IHEC tests on Local mode can be run with:
 
-`./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`
+`./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json`
 
 You can also use SLURM with; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
@@ -121,9 +121,9 @@ The provided configuration files are for 75bp PET only. Standard configration fi
 
 To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names.
 
-As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `$PWD/h3k4me3_out`. So do
+As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `outdir=$PWD/cromwell-executions/chip/93de85aa-d581-48df-b8ae-a91a6e88a21f`. So do
 
-    python computemd5s.py $PWD/h3k4me3_out test
+    python computemd5s.py $outdir test
 	chmod +x ./computemd5s_test
 	./computemd5s_test > log_h3k4me3
 	python status_cemt.py log_h3k4me3 expected_md5s_h3k4me3.json 
