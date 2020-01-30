@@ -26,6 +26,10 @@ For running on cluster with a slurm etc see [this section](https://github.com/IH
 
 You will need 10G RAM for ENCODE tests and in excess of 60G for running the IHEC test dataset.  
 
+## QC reports
+
+The analysis will generate a `qc.json` file (as well as an html version) along with peak calls and aligned bam files. This file contains the needed qc metrics.
+
 ## Pulling Singularity image and generating wrapper scripts
 
 These scripts require `python 3.6.8` or higher. It's assmumed that the the underlying OS support `overlayfs` so paths that do not exist on the singularity can be mounted inside singularity. CentOS6 does not have `overlayfs` support. If you need support for OS without `overlayfs` please make an issue.  
