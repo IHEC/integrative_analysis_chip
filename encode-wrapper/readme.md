@@ -8,7 +8,7 @@ This wrapper uses http://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4
 
 ## IHEC Standard workflows
 
-Documemtation on how to define configs for IHEC standard workflows: [IHEC standard workflow](ihec_standard_workflow.md)
+Documentation on how to define configs for IHEC standard workflows: [IHEC standard workflow](ihec_standard_workflow.md)
 
 ## Downloading test data
 
@@ -16,7 +16,7 @@ First run `./get_encode_resources.sh` to get encode test dataset and hg38 genome
 
 By default it will use git over http. If you want to use ssh, then pass `ssh` as first argument.
 
-Run `chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
+Run `python chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
 
 ## Running on cluster
 
@@ -65,6 +65,8 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 ## Running tests
 
 To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.  If you are on HPC and prefer to use SLURM, do `./encode_test_tasks_run_ihec_slurm_singularity.sh <installation_dir> slurm_singularity try1`.
+
+You will need atleast 10G of memory for running the encode tasks. 
 
 Make sure all test pass, by looking through jsons generated. `./status_encode_tasks.py` can be used here.
 
@@ -152,3 +154,6 @@ The recommended workflow if to remove files from `delete.list` only (in case dis
 It's expected that `unresolvedfiles.list` and `unexpectedfiles.list` are empty. If they are not empty, the files listed there will need to be looked at. Please review files before deleting to ensure nothing useful is removed.
 
 ## Running on cluster
+
+While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended that the analysis when submtting to cluster using slurm (or alternatives) just submit the the a shell script containing the  `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster. Using `slurm` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity. 
+
