@@ -32,7 +32,7 @@ The analysis will generate a `qc.json` file (as well as an html version) along w
 
 ## Pulling Singularity image and generating wrapper scripts
 
-These scripts require `python 3.6.8` or higher. It's assmumed that the the underlying OS support `overlayfs` so paths that do not exist on the singularity can be mounted inside singularity. CentOS6 does not have `overlayfs` support. If you need support for OS without `overlayfs` please make an issue.  
+These scripts require `python 3.6.8` or higher. It's assmumed that the the underlying OS supports `overlayfs` so paths that do not exist on the singularity can be mounted inside singularity (CentOS7 should work fine). CentOS6 does not have `overlayfs` support. If you need support for OS without `overlayfs` please make an issue.  
 
 Check singularity version with `singularity --version` to make sure it's at least `3.0.1`.
 
