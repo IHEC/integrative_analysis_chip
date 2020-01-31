@@ -20,7 +20,7 @@ Run `python chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
 
 ## Running on cluster
 
-For running on cluster with a slurm etc see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1)
+For running on cluster with a SLURM or PBS etc see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1)
 
 ## Memory requirements
 
@@ -48,9 +48,13 @@ This command will write:
 
 * piperunner_ihec_slurm_singularity.sh
 
+* piperunner_ihec_pbs_singularity.sh
+
 * testrun_tasks.sh
 
 * testrun_tasks_ihec_slurm_singularity.sh
+
+* testrun_tasks_ihec_pbs_singularity.sh
 
 * singularity_encode_test_tasks.sh
 
@@ -74,7 +78,7 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 
 ### ENCODE tests
 
-To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.  If you are on HPC and prefer to use SLURM, do `./encode_test_tasks_run_ihec_slurm_singularity.sh <installation_dir> slurm_singularity try1`.
+To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.  If you are on HPC and prefer to use SLURM, do `./encode_test_tasks_run_ihec_slurm_singularity.sh <installation_dir> slurm_singularity try1` and for PBS do `./encode_test_tasks_run_ihec_pbs_singularity.sh <installation_dir> pbs_singularity try1`.
 
 You will need atleast 10G of memory for running the encode tasks. 
 
@@ -113,9 +117,11 @@ IHEC tests on Local mode can be run with:
 
 `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json`
 
-You can also use SLURM with; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
+You can also use SLURM or PBS with; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
 `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`
+
+`./piperunner_ihec_pbs_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json pbs_singularity h3k4me3_out` and `./piperunner_ihec_pbs_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json pbs_singularity h3k27me3_out`
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes.
 
