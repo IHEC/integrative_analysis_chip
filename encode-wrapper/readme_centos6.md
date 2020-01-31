@@ -8,7 +8,7 @@ This wrapper uses http://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4
 
 ## IHEC Standard workflows
 
-Documentation on how to define configs for IHEC standard workflows: [IHEC standard workflow](ihec_standard_workflow.md)
+Documemtation on how to define configs for IHEC standard workflows: [IHEC standard workflow](ihec_standard_workflow.md)
 
 ## Downloading test data
 
@@ -16,33 +16,19 @@ First run `./get_encode_resources.sh` to get encode test dataset and hg38 genome
 
 By default it will use git over http. If you want to use ssh, then pass `ssh` as first argument.
 
-Run `python chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
+Run `chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
 
 ## Running on cluster
 
-For running on cluster with a slurm etc see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1)
-
-## Memory requirements
-
-You will need 10G RAM for ENCODE tests and in excess of 60G for running the IHEC test dataset.  
-
-## QC reports
-
-The analysis will generate a `qc.json` file (as well as an html version) along with peak calls and aligned bam files. This file contains the needed qc metrics.
+For running on cluster with a slurm etc see the last section on this document
 
 ## Pulling Singularity image and generating wrapper scripts
 
-These scripts require `python 3.6.8` or higher. It's assmumed that the the underlying OS supports `overlayfs` so paths that do not exist on the singularity can be mounted inside singularity (CentOS7 should work fine). CentOS6 does not have `overlayfs` support. If you need support for OS without `overlayfs` please make an issue.  
+Check singularity version with `singularity --version` to make sure it's at least `2.5.2`.
 
-Check singularity version with `singularity --version` to make sure it's at least `3.0.1`.
+Then run `python chip.py -pullimage -bindpwd`. `bindpwd` will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise see `-pwd2ext0` option that binds $PWD to `/mnt/ext_0`.
 
-Then run `python chip.py -pullimage -bindpwd`
-
-Then run `python chip.py -pullimage -bindpwd`. `bindpwd` will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise passing `-pwd2ext0` binds $PWD to `/mnt/ext_0`.
-
-If additional paths are passed like `python chip.py -pullimage -bindpwd /some/directory_A /some/directory_B ...` then these will be mounted inside the image at `/mnt/ext_1`, `/mnt/ext_2` and so on. `/mnt/ext_0` is reserved for mounting `$PWD` if needed.   
-
-This command will write:
+This will write:
 
 * piperunner.sh
 
@@ -58,25 +44,29 @@ This command will write:
 
 * trackoutput.sh
 
+If you are running in `Local` mode using using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_1`, `$PWD/data_a` as `/mnt/ext_2` and so on, and it binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and other bind points further along `ext_$i`'s.
+
+For example,
+
+    python ./chip.py -pullimage -bindpwd -pwd2ext0 $PWD/v2/ihec
+
+will set up all binds so that after downloading the cemt0007 test data, you can just use `cemt0007_h3k27me3_mnt_ext_0.json` out of the box like:
+
+    $ ./singularity_wrapper.sh cemt0007_h3k27me3_mnt_ext_0.json
+
+without needing to do `chip.py -maketests` as later described.
+
 This will also create the singularity image in `./images`.
 
 Do `chmod +x ./*sh`.
 
 You can pass `-nobuild` if you just want to regenerate the wrapper scripts without pulling the singularity image again.
 
-`singularity_wrapper.sh` can be examined to see what mount points have been generated.
-
-For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/` generates: 
-
-    singularity exec --cleanenv -B /usr/edcc/integrative_analysis_chip/encode-wrapper,/usr/edcc/integrative_analysis_chip/encode-wrapper/v2/ihec/test_data/:/mnt/ext_1 /usr/edcc/integrative_analysis_chip/encode-wrapper/images/chip_seq_pipeline_v1_1_4.sif /usr/edcc/integrative_analysis_chip/encode-wrapper/piperunner.sh $1 $BACKEND
+If you did not use `python ./chip.py -pullimage -bindpwd -pwd2ext0 $PWD/v2/ihec` then you will not be able to use `cemt0007_h3k*_mnt_ext_0.json` for tests, as the test data may not be mapped to `/ext/mnt_0`. See running tests below.
 
 ## Running tests
 
-### ENCODE tests
-
 To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.  If you are on HPC and prefer to use SLURM, do `./encode_test_tasks_run_ihec_slurm_singularity.sh <installation_dir> slurm_singularity try1`.
-
-You will need atleast 10G of memory for running the encode tasks. 
 
 Make sure all test pass, by looking through jsons generated. `./status_encode_tasks.py` can be used here.
 
@@ -101,9 +91,7 @@ Make sure all test pass, by looking through jsons generated. `./status_encode_ta
         "#ok": 14
     }
 
-### MCF10A tests
-
-For the MCF10A data downloaded with `python chip.py -get`, doing `python chip.py -maketests` will write ChIP test configurations (you also need to pass `-pwd2ext0` if you set `$PWD` to `/ext/mnt_0`):
+Doing `python chip.py  -maketests` will write ChIP test configurations (you also need to pass `-pwd2ext0` if you set `$PWD` to `/ext/mnt_0`):
 
 * ./v2/ihec/cemt0007_h3k4me3.json
 
@@ -113,19 +101,17 @@ IHEC tests on Local mode can be run with:
 
 `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json`
 
-You can also use SLURM with; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
+Or using SLURM with:
 
 `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes.
 
-For these tests, the running time can be 24 hours depending on hardware. 
-
 To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names.
 
-As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `outdir=$PWD/cromwell-executions/chip/93de85aa-d581-48df-b8ae-a91a6e88a21f`. So do
+As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `$PWD/h3k4me3_out`. So do
 
-    python computemd5s.py $outdir test # the first must be the cromwell directory for the analysis, the second a suffix for the script
+    python computemd5s.py $PWD/h3k4me3_out test
 	chmod +x ./computemd5s_test
 	./computemd5s_test > log_h3k4me3
 	python status_cemt.py log_h3k4me3 expected_md5s_h3k4me3.json 
@@ -155,22 +141,14 @@ This will match md5s for cemt0007 H3K4me3 analysis. And similarly for H3K27me3.
 
 ## Organizing ENCODE output
 
-See output of `./trackoutput.sh <cromwell_directory_for_analysis> -outdir:$outdir`  to see what files are to be copied over. `trackoutput.sh` will write following lists of files (in `$outdir`):
+See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what files are to be copied over. `trackoutput.sh` will write following lists of files:
 
-    ./delete.list              # files that are liklely candidate to deletetion delete
+    ./delete.list              # files okay to delete
     ./masterfiles.list         # files that will be kept
     ./extraneous_cromwell.list # files that are likely extraneous cromwell files
     ./unresolvedfiles.list     # files that will be kept, but cannot be accessed as they may be hardlinks that cannot be resolved
     ./unexpectedfiles.list     # extraneous cromwell files that do not match patterns for expected cromwell files
 
-Cromwell generates large number of files by creating hardlinks; this script attempts to resolve these links and keeping only one copy of each. `./unresolvedfiles.list` contains hardlinks that the script is unable to resolve because of mount issues or othet OS errors.  
+The recommended workflow if to remove files from `delete.list` only (in case diskspace is an issue). And then symlink files from `masterfiles.list` in an empty directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
 
 It's expected that `unresolvedfiles.list` and `unexpectedfiles.list` are empty. If they are not empty, the files listed there will need to be looked at. Please review files before deleting to ensure nothing useful is removed.
-
-The recommended workflow is to consider removing files from `delete.list` only (in case diskspace is an issue). And then symlink files from masterfiles.list (while keeping everything else) to a final analysis directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
-
-
-## Running on cluster
-
-While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended that the analysis when submtting to cluster using slurm (or alternatives) just submit the the a shell script containing the  `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster (i.e. the job will run in Local mode on the node it's submitted to). Using `slurm` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity.   
-

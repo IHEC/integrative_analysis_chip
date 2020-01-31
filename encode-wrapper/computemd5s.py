@@ -6,9 +6,9 @@ import sys
 
 def findfiles(base, pattern):
 	cmd = "find {0} -name '{1}'".format(base, pattern)
-	print cmd
+	print2(cmd)
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	return [e.strip() for e in p.stdout.readlines()]
+	return [e.decode("utf-8").strip() for e in p.stdout.readlines()]
 
 
 def flistsize(fs):
@@ -32,9 +32,9 @@ def byino(fs):
 def md5script(hashed):
 	def cmd(f):
 		if f.strip().endswith('bam'):
-			return 'echo "{1} $(./headlessbam_md5 {0})"'.format(f, os.path.basename(f))
+			return 'echo "{1} $(singularity exec -B $PWD ./images/chip_seq_pipeline_v1_1_4.sif ./headlessbam_md5 {0})"'.format(f, os.path.basename(f))
 		else:
-			return 'echo "{1} $(md5sum {0})"'.format(f, os.path.basename(f))
+			return 'echo "{1} $(singularity exec -B $PWD ./images/chip_seq_pipeline_v1_1_4.sif md5sum {0})"'.format(f, os.path.basename(f))
 			
 	return [cmd(v) for v in sorted(hashed.values(), key= lambda x: os.path.basename(x))]
 
@@ -46,10 +46,10 @@ def trackoutput(base, i, filereport):
 	(peaksbyino, peaks_flist) = byino(narrowpeaks)
 
 	if not filereport:
-		print writef('./computemd5s_{0}'.format(i),  ['#!/bin/bash'] + md5script(bamsbyino) + md5script(peaksbyino)) 
+		print2(writef('./computemd5s_{0}'.format(i),  ['#!/bin/bash'] + md5script(bamsbyino) + md5script(peaksbyino))) 
 	
 	qc = findfiles(base, 'qc.html')	
-	print qc
+	print2(qc)
 
 	return { 'bams' : bams_flist, 'peaks' : peaks_flist, 'qc' : byino(qc)[1]}
 
@@ -69,9 +69,9 @@ def main(args):
 		keep.extend(record['bams'])
 		keep.extend(record['peaks'])
 		
-	print jdumpf('./filereport.json', output)
-	print jdumpf('./file_shortreport.json', map(lambda o: {k: sorted(o[k].keys()) for k in o}, output))
-	print 'size',  sum(flistsize(keep).values())
+	print2(jdumpf('./filereport.json', output))
+	print2(jdumpf('./file_shortreport.json', list(map(lambda o: {k: sorted(o[k].keys()) for k in o}, output))))
+	print2('size',  sum(flistsize(keep).values()))
 	
 	
 

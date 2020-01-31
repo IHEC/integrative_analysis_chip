@@ -1,9 +1,14 @@
+from __future__ import print_function
 import json
 import subprocess
 import sys
 import os
 import glob
 import shutil
+
+def print2(*args):
+	print(*args)
+
 
 def jsonp(m):
 	return json.dumps(m, sort_keys=True, indent=4)
