@@ -159,7 +159,8 @@ def write_testrun(l_config):
 def singularity_pull_image(home, config, binds, debug=debug_mode):
 	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.2'
 	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4'
-	imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4-sambamba-0.7.1'
+	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4-sambamba-0.7.1'
+	imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4-sambamba-0.7.1-rev1'
 	image_version = imageurl.split(':')[-1].replace('.', '_')
 	os.chdir('./images')
 	if debug:
