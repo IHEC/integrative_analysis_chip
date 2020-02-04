@@ -19,6 +19,7 @@ def main(args):
 
 
 	log = by_keyvalue(linesf(args[0]), k, v)
+	print(jdumpf("./discovered_md5s.json", log))
 	expected = jloadf(args[1]) 
 	n_fails = 0
 	for k in expected:
