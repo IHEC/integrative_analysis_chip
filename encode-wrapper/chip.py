@@ -141,8 +141,10 @@ def write_testrun(l_config):
 			]
 			logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '\n'.join(encode_tests).format(**l_config[i])))
 			mcf_tests = [
-				'#!/bin/bash', 'echo "home:$PWD"', "which singularity", 'BACKEND="{backend_default}"',
-				'\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $BACKEND\n\n'
+				'#!/bin/bash', 'echo "home:$PWD"', "which singularity",
+				'if [[ $# > 1 ]]; then OUTDIR="$2"; else OUTDIR=""; fi',
+				'BACKEND="{backend_default}"',
+				'\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $BACKEND $OUTDIR\n\n'
 			]
 			logerrn(dumpf('./singularity_wrapper.sh', '\n'.join(mcf_tests).format(**l_config[i])))
 		else:
@@ -156,7 +158,9 @@ def write_testrun(l_config):
 
 def singularity_pull_image(home, config, binds, debug=debug_mode):
 	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.2'
-	imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4'
+	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4'
+	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4-sambamba-0.7.1'
+	imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4-sambamba-0.7.1-rev1'
 	image_version = imageurl.split(':')[-1].replace('.', '_')
 	os.chdir('./images')
 	if debug:
@@ -191,24 +195,26 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
 		raise Exception('__could_not_copy__:chip.wdl likey current directory is not bound in the container... ' + binds)
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./v2/chip.wdl\n')
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./chip.wdl\n')
+
 	return [{
-			'additional_binds' : binds,
+			'additional_binds' : binds + ",$BINDPATHS",
 			"container_image":image_path,
 			"home" : home,
 			"home_mnt": home_mnt,
 			"bind_opt": "${3:-}",
-			"backend_default" : "${2:-Local}",
+			"backend_default" : "${3:-Local}",
 			"container" : container_mnt,   #os.path.abspath(container),
 			"wdl" : "{0}/v2/chip.wdl".format(home_mnt),
 			"backend" : "{0}/backend.conf".format(home_mnt)
 			},
 			{
-			'additional_binds' : binds,
+			'additional_binds' : binds + ",$BINDPATHS",
 			"container_image":image_path,
 			"home" : home,
 			"home_mnt": home_mnt,
 			"bind_opt": "${3:-}",
-			"backend_default" : "${2:-Local}",
+			"backend_default" : "${3:-Local}",
+
 			"container" : container_mnt,   #os.path.abspath(container),
 			"wdl" : "{0}/v2/chip.wdl".format(home_mnt),
 			"backend" : "{0}/backend_ihec_slurm_singularity.conf".format(home_mnt)
