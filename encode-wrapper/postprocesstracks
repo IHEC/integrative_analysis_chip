@@ -1,0 +1,17 @@
+#!/bin/bash
+set -eufx -o pipefail
+
+
+mode=""
+bamfile=""
+bindpaths="$PWD"
+bam2wigopts=""
+bam2wigsamtools="-samtools /usr/local/bin/samtools"
+chromsize=""
+
+strippedbam="$(dirname $bamfile)/$(basename $bamfile bam).stripped.bam"
+#/usr/local/bin/samtools view -h $bamfile > $strippedbam
+
+
+chipimage="images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif"
+singularity exec --cleanenv -B $bindpaths $chipimage java -jar ./BAM2WIG-1.0.0.jar -h  $bam2wigsamtools
