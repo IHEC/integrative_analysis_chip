@@ -23,10 +23,6 @@ def wget(url, debug=debug_mode):
 		logerr(' ..debug: wget {0}\n'.format(url))
 		dumpf(os.path.basename(url), 'test:{0}'.format(url))
 		return
-	#p = subprocess.Popen('wget ' + url ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	#p = subprocess.Popen(['wget', url, '--directory-prefix', './test_data'] ,shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	#for line in p.stdout.readlines():
-	#	logerr(line)
 	p = subprocess.Popen('wget ' + url ,shell=True)
 	return p.wait()
 	
