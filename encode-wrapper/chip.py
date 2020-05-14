@@ -116,7 +116,8 @@ def make_tests(args):
 		config = jloadf('./hg38_resources/base_config.json')
 		base = config['base']
 	else:
-		base = '/mnt/ext_0' if '-pwd2ext0' in args else  os.path.abspath(os.getcwd())
+		if '-pwd2ext0' in args : raise Exception('-pwd2ext0 is no longer supported')
+		base = os.path.abspath(os.getcwd())
 
 	def fix(fname, base):
 		assert fname.endswith('_template.json')
@@ -158,9 +159,6 @@ def write_testrun(l_config):
 
 
 def singularity_pull_image(home, config, binds, debug=debug_mode):
-	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.2'
-	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4'
-	#imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4-sambamba-0.7.1'
 	imageurl = 'docker://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4-sambamba-0.7.1-rev1'
 	image_version = imageurl.split(':')[-1].replace('.', '_')
 	os.chdir('./images')
