@@ -2,16 +2,30 @@
 set -eufx -o pipefail
 
 
-mode=""
-bamfile=""
-bindpaths="$PWD"
+
+binaries="$1"
+mode="$2"
+bamfile="$3"
+
+bindpaths="$binaries,$(dirname $bamfile)"
+if [ "$mode" = "SET" ]; then
+   bam2wigopts=""
+   frag=$4
+   bw="$(dirname $bamfile)/$(basename $bamfile bam).set-$frag.bw"
+else 
+   bam2wigopts=""
+   bw="$(dirname $bamfile)/$(basename $bamfile bam).pet.bw"
+fi
+
 bam2wigopts=""
 bam2wigsamtools="-samtools /usr/local/bin/samtools"
 chromsize=""
 
 strippedbam="$(dirname $bamfile)/$(basename $bamfile bam).stripped.bam"
 #/usr/local/bin/samtools view -h $bamfile > $strippedbam
+bw="$(dirname $bamfile)/$(basename $bamfile bam).bigwig" 
 
+$binaries/wigToBigWig
 
-chipimage="images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif"
-singularity exec --cleanenv -B $bindpaths $chipimage java -jar ./BAM2WIG-1.0.0.jar -h  $bam2wigsamtools
+chipimage="$binaries/image/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif"
+singularity exec --cleanenv -B $bindpaths $chipimage java -jar $binaries/BAM2WIG-1.0.0.jar -h  $bam2wigsamtools
