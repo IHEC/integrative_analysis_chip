@@ -222,7 +222,15 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
 
 
 def bindargs(args):
-	binds = ''
+	binds = '''
+	if [ -z "$BINDPATHS" ]
+	then
+		BINDPATHS="$PWD"
+	else
+		BINDPATHS="$PWD,$BINDPATHS"
+	fi
+	'''
+	return binds
 	if not '-bindpwd' in args:
 		return binds
 	if '-bindpwd' in args:
