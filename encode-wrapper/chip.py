@@ -137,14 +137,15 @@ def write_testrun(l_config):
 
 			encode_tests = [
 				'#!/bin/bash\n\necho "home:$PWD"\n\nwhich singularity',
-				'\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} Local ${{@:1}}\n\n'
+				'\n{additional_binds}\n\nsingularity exec --cleanenv $BINDPATHS {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} Local ${{@:1}}\n\n'
 			]
 			logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '\n'.join(encode_tests).format(**l_config[i])))
 			mcf_tests = [
 				'#!/bin/bash', 'echo "home:$PWD"', "which singularity",
 				'if [[ $# > 1 ]]; then OUTDIR="$2"; else OUTDIR=""; fi',
 				'BACKEND="{backend_default}"',
-				'\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $BACKEND $OUTDIR\n\n'
+			
+				'\n{additional_binds}\nsingularity exec --cleanenv $BINDPATHS {container_image} {home_mnt}/piperunner.sh $1 $BACKEND $OUTDIR\n\n'
 			]
 			logerrn(dumpf('./singularity_wrapper.sh', '\n'.join(mcf_tests).format(**l_config[i])))
 		else:
@@ -153,7 +154,7 @@ def write_testrun(l_config):
 			with open('testrun_tasks_template.sh') as infile:
 				logerr('#written:' +  dumpf('{0}/testrun_tasks_ihec_slurm_singularity.sh'.format(l_config[i]['home']),  infile.read().format(**l_config[i])) + '\n')
 
-	return dumpf('./trackoutput.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\n\nsingularity exec {additional_binds} {container_image} python trackoutput.py $@\n\n'.format(**l_config[i]))
+	return dumpf('./trackoutput.sh', '#!/bin/bash\n\necho "home:$PWD"\nwhich singularity\n\n{additional_binds}\n\nsingularity exec $BINDPATHS {container_image} python trackoutput.py $@\n\n'.format(**l_config[i]))
 
 
 def singularity_pull_image(home, config, binds, debug=debug_mode):
@@ -188,16 +189,16 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
 			"singularity_instance_name": image_label
 		}
 	})
-		
-	shell('singularity exec {1} {0} cp /software/chip-seq-pipeline/chip.wdl {2}/v2/'.format(image_path, binds, home_mnt), assert_ok=True)
-	shell('singularity exec {1} {0} cp /software/chip-seq-pipeline/chip.wdl {2}/'.format(image_path, binds, home_mnt), assert_ok=True)
+	binds_pwd="-B $PWD"	
+	shell('singularity exec {1} {0} cp /software/chip-seq-pipeline/chip.wdl {2}/v2/'.format(image_path, binds_pwd, "$PWD"), assert_ok=True)
+	shell('singularity exec {1} {0} cp /software/chip-seq-pipeline/chip.wdl {2}/'.format(image_path, binds_pwd, "$PWD"), assert_ok=True)
 	if not os.path.exists('./chip.wdl') or not os.path.exists('./v2/chip.wdl'):
 		raise Exception('__could_not_copy__:chip.wdl likey current directory is not bound in the container... ' + binds)
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./v2/chip.wdl\n')
 	logerr('# copied /software/chip-seq-pipeline/chip.wdl to ./chip.wdl\n')
 
 	return [{
-			'additional_binds' : binds + ",$BINDPATHS",
+			'additional_binds' : binds,
 			"container_image":image_path,
 			"home" : home,
 			"home_mnt": home_mnt,
@@ -208,7 +209,7 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
 			"backend" : "{0}/backend.conf".format(home_mnt)
 			},
 			{
-			'additional_binds' : binds + ",$BINDPATHS",
+			'additional_binds' : binds,
 			"container_image":image_path,
 			"home" : home,
 			"home_mnt": home_mnt,
@@ -222,30 +223,7 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
 
 
 def bindargs(args):
-	binds = '''
-	if [ -z "$BINDPATHS" ]
-	then
-		BINDPATHS="$PWD"
-	else
-		BINDPATHS="$PWD,$BINDPATHS"
-	fi
-	'''
-	return binds
-	if not '-bindpwd' in args:
-		return binds
-	if '-bindpwd' in args:
-		params = [e for e in args if not e[0] == '-']
-		if '-pwd2ext0'in args:
-			bindpwd = '-B {0}:/mnt/ext_0'.format(os.getcwd())
-			offset = 1
-		else:
-			bindpwd = '-B ' + os.getcwd()
-			offset = 1
-
-		if not params:
-			return bindpwd
-		else:
-			return bindpwd + ',' + ','.join([ '{1}:/mnt/ext_{0}'.format(i + offset, e) for i,e in enumerate(params)])
+	binds = '''if [ -z "$BINDPATHS" ] ; then BINDPATHS="-B $PWD"; else BINDPATHS="-B $PWD,$BINDPATHS"; fi ; echo "# binding $BINDPATHS"; '''
 	return binds
 
 def main(args):
