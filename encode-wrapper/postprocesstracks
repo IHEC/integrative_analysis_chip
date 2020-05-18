@@ -6,8 +6,8 @@ set -eufx -o pipefail
 
 
 if [ "$1" = "-debug" ]; then
-  bamfile="./cromwell-executions/chip/67359da1-c467-4789-bcc0-aa371cb521e1/call-filter/shard-0/execution/ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.nodup.bam"
-  ln -s $bamfile ./temp/
+  bamfile="$PWD/cromwell-executions/chip/67359da1-c467-4789-bcc0-aa371cb521e1/call-filter/shard-0/execution/ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.nodup.bam"
+  ln -s $bamfile ./temp/ || true
   bamfile="$PWD/temp/$(basename $bamfile)"
   mode="PET"
   binaries="$PWD"
@@ -30,7 +30,6 @@ else
    bw="$(dirname $bamfile)/$(basename $bamfile bam).pet.bw"
 fi
 
-bam2wigopts=""
 bam2wigsamtools="-samtools /usr/local/bin/samtools"
 chromsize=""
 
@@ -41,7 +40,7 @@ bw="$(dirname $bamfile)/$(basename $bamfile bam).bigwig"
 
 
 
-singularity exec --cleanenv -B $bindpaths $chipimage $binaries/stripbam $bamfile
+#singularity exec --cleanenv -B $bindpaths $chipimage $binaries/stripbam $bamfile
 
-singularity exec --cleanenv -B $bindpaths $chipimage java -jar -Xmx10G $binaries/BAM2WIG-1.0.0.jar $bamfile $bam2wigopts $bam2wigsamtools                                                                                                                                                                                                     singularity exec --cleanenv -B $bindpaths $chipimage $binaries/wigToBigWig   
-
+singularity exec --cleanenv -B $bindpaths $chipimage java -jar -Xmx10G $binaries/BAM2WIG-1.0.0.jar -bamFile $bamfile $bam2wigopts $bam2wigsamtools                                                                                                                                                                                                     
+singularity exec --cleanenv -B $bindpaths $chipimage $binaries/wigToBigWig   
