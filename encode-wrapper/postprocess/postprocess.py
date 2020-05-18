@@ -4,10 +4,8 @@ import os
 import subprocess
 import json
 
-def flines(fname, fcn = None):
-	if not fcn: fcn  = lambda x: x
-	with open(fname) as infile:
-		return [fcn(e) for e in infile.readlines()]
+from . import utilsm
+
 
 def uniq(es):
 	assert len(es) == 1, es
@@ -25,14 +23,12 @@ def shell(cmd):
 	shell_command.terminate() 
 	return dict(zip(['cmd', 'out', 'err', 'return', 'pid'], [cmd, '', 'EXCEPTION:{0}'.format(str(err)), -1, -1]))	
 
-def jsonloadf(f):
-	return dict()
 
 
 
 class ENCODEChIP:	
 	def __init__(self):
-		self.home = os.path.realpath(__file__)
+		self.base = os.path.realpath(__file__)
 		self.bamcoverage = '{0}/bamcoverage'.format(self.base)
 		self.bamstrip = '{0}/bamstrip'.format(self.base) 
 		self.fasta = 'GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta.tar'
@@ -42,13 +38,17 @@ class ENCODEChIP:
 		return glob.glob(pattern)
 
 	def files(self, base):
-		hashed = {'qc' :  glob.glob('{0}/call-qc_report/execution/qc*'.format(base))}
-		hashed['bigwigs'] = glob.glob('{0}/call-macs2/*/execution/*bigwig'.format(base))
+		hashed = dict()
+		hashed['qc'] = glob.glob('{0}/call-qc_report/execution/qc.*'.format(base))
+		hashed['pval.signal.bigwig'] = glob.glob('{0}/call-macs2/*/execution/*pval.signal.bigwig'.format(base))
+		hashed['fc.signal.bigwig'] = glob.glob('{0}/call-macs2/*/execution/*fc.signal.bigwig'.format(base))
+		hashed['macs'] = glob.glob('{0}/call-macs2/*/execution/*merged.nodup_x_ctl_for_rep1*pval0.01.500K.narrowPeak.gz'.format(base))
+		hashed['macs-filt'] = glob.glob('{0}/call-macs2/*/execution/*merged.nodup_x_ctl_for_rep1.pval0.01.500K.bfilt.narrowPeak.gz'.format(base))
 		return hashed
 
 	def cromwelldir(self, log, opts=None):
 		if not opts: opts = dict()
-		lines = flines(log)
+		lines = utilsm.linesf(log)
 		fasta = uniq([e for e in lines if e.find(self.fasta) != -1 and e.find('/call-bwa/') != -1]) 
 		tags = fasta.strip().split('/call-bwa/')      
 		if 'checkok'  in opts:
@@ -71,7 +71,8 @@ def main(args):
 		for e in vals:
 			cromwell =  encode.cromwelldir(e,opts= {'checkok':True})
 			print(os.path.basename(e), cromwell, encode.nodupbam(cromwell))
-			print(encode.files(cromwell))
+			files = encode.files(cromwell)
+			print(utilsm.jsonp(files))
 	elif '-nodupbam' in args:
 		for e in vals:
 			print(encode.nodupbam(e))
