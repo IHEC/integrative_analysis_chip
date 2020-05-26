@@ -1,0 +1,36 @@
+def version(){
+    return "1.0"
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'BamUtils.BamSeqStrip'
+
+defaultTasks 'run'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+	main.java.srcDirs += '.'
+	main.scala.srcDirs += '.'
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.13.1'
+}
+
+jar {
+    manifest { attributes 'Main-Class': 'BamUtils.BamSeqStrip' }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    baseName 'bamseqstrip'
+}
