@@ -4,7 +4,8 @@ import java.io._
 
 // strip out cigar strings and sequences/qualities from bam piped into stdin
 // keeping only the following fields: 
-//  1,2,3,4,5,7,8,9 
+//  1,2,3,4,5,7,8,9
+// cigar string is replaced by 1M, sequence by N, qualities by #
 // the output is written to stdout and can be converted back to bam
 
 object BamSeqStrip {
