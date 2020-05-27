@@ -5,7 +5,7 @@ import subprocess
 import json
 
 from . import utilsm
-
+from . import localutils
 
 def uniq(es):
 	assert len(es) == 1, es
@@ -23,15 +23,6 @@ def shell(cmd):
 	shell_command.terminate() 
 	return dict(zip(['cmd', 'out', 'err', 'return', 'pid'], [cmd, '', 'EXCEPTION:{0}'.format(str(err)), -1, -1]))	
 
-def rename(files):
-	meta = utilsm.jloadf('./postprocess/meta.json')
-	bam = uniq(files['merged.nodup.bam'])
-	assay = meta[os.path.basename(bam)]
-	prefix = meta[assay]
-	for ftype, fs in files.items():
-		f = uniq(fs)
-		print(f, './postprocess/temp/{0}.{1}'.format(prefix, ftype))
-		os.symlink(f, './postprocess/temp/{0}.{1}'.format(prefix, ftype))
 
 
 class ENCODEChIP:	
@@ -119,13 +110,12 @@ def main(args):
 	if '-cromwelldir' in args:
 		for e in vals:
 			cromwell =  encode.cromwelldir(e,opts= {'checkok':True})
-			#print(os.path.basename(e), cromwell, encode.nodupbam(cromwell))
 			print('#', e, cromwell)
 			files = encode.files(cromwell)
-
-			#rename(files)
+			if "-rename" in args:
+				localutils.rename(files, "./bamstrip/nodupbams")
 			
-			print(utilsm.jsonp(files))
+			#print(utilsm.jsonp(files))
 			#out = encode.postprocess(cromwell)
 			#print(utilsm.jsonp(out))
 		print(utilsm.writef("./commands.sh", encode.commands) )
