@@ -16,10 +16,9 @@ def uniq(es):
 	assert len(es) == 1, es
 	return es[0]
 
-def shell(cmd):  
-	shell_command = None 
+def shell(cmd):
+	shell_command = subprocess.Popen(cmd, shell=True , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	try:
-		shell_command = subprocess.Popen(cmd, shell=True , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		[stdout, stderr] = shell_command.communicate() 
 		return dict(zip(['cmd', 'out', 'err', 'return', 'pid'], [cmd, stdout.decode("utf-8"), stderr.decode("utf-8"), shell_command.returncode, shell_command.pid])) 
 	except Exception as err: 
@@ -32,7 +31,8 @@ def shell(cmd):
 
 class ENCODEChIP:	
 	def __init__(self, image):
-		"""
+		""" object that is configured to provide postprocessing
+
 			Args:
 				image: The ENCODE ChIP container image to use
 		"""
@@ -121,7 +121,7 @@ class ENCODEChIP:
 				args['additional'] = fragment
 			args['binds'] = self.base + ',' + os.path.dirname(args['bam']) 
 			args['image'] = self.image 
-			cmd = 'singularity exec -B {binds} {image} {script} {bam} {additional}'.format(**args)	
+			cmd = 'singularity exec --cleanenv -B {binds} {image} {script} {bam} {additional}'.format(**args)	
 			out[script] = shell(cmd) if not self.dryrun else shell('echo ' + cmd)
 			out[script]['outfile'] = ''
 			self.commands.append(cmd + '\n\n')
