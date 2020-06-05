@@ -2,22 +2,9 @@
 
 set -eufx -o pipefail       
 
+strippedbam="$(dirname $1)/$(basename $1 bam)noseq.gz"
 
-samtools="/usr/local/bin"
-strippedbam="./$(basename $1 bam)noseq.bam"
+/usr/local/bin/samtools view -h $1 | cut -f 1,2,3,4,5,7,8,9 | gzip -6 > $strippedbam
 
-#  samtools view -bS - > out.bam # http://samtools.sourceforge.net/pipe.shtml
-
-$samtools/samtools view -h $1 | java -jar ./bamstrip.jar | $samtools/samtools view -hSb - > $strippedbam
 echo "#return:$? $strippedbam $1"                                                                                                                                    
-
-./noseqgz $1 ./"$(basename $1 bam).a"
-./noseqgz $strippedbam ./"$(basename $1 bam).b"
-
-diff ./"$(basename $1 bam).b" ./"$(basename $1 bam).a"
-echo "diff:$? ./$(basename $1 bam)"
-
-/usr/local/bin/samtools index $strippedbam
-/usr/local/bin/samtools flagstat $strippedbam > "$strippedbam".flagstats
-
 

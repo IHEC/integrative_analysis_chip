@@ -48,6 +48,6 @@ object BamSeqStrip {
        line = reader.readLine 
      }
      out.flush()
-     System.err.println("%d:%d".format(reads, nHeader))
+     System.err.println("#__bamstrip__ summary %d:%d".format(reads, nHeader))
   }
 }
