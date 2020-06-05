@@ -3,7 +3,8 @@
 set -eufx -o pipefail       
 
 # this should be run on the container
-#   e.g. singularity exec -B $binds $image_sif $base/postprocess.sh $bamfile
+#   e.g. singularity exec -B $binds $image_sif $base/postprocess.sh $bamfile $fragmentsize
+#   $fragmentsize is required if bam is SET, otherwise it's not needed
 # to build bamstrip.jar
 #   cd ../bamstrip; gradle build
 # then copy the bamstrip.jar built here
