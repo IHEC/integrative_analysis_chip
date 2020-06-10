@@ -8,6 +8,8 @@ import postprocess # import post processing module
 image =  '/projects/edcc_new/e/chip-may20/integrative_analysis_chip/encode-wrapper/images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif'
 encode = postprocess.ENCODEChIP(image)
 encode.dryrun = False # set this to False to run the analysis, otherwise this will just echo the command it will run
+encode.dryrun = True
+
 
 def logerr(args):
 	print(*args)
@@ -17,7 +19,7 @@ def checkreadcounts(log):
 	nodupflagstats = utilsm.jloadf(log['files']['qc.json'][0])
 	return -1
 
-def analyze(analysis_dir, ctl=False):
+def analyze(analysis_dir, ctl):
 	"""
 		Args:
 			analysis_dir: analysis directory to post process
@@ -64,9 +66,14 @@ def utils(args):
 def main(args):
 	
 	log = dict()
-	for e in args:
-		log[e] = analyze(e)	
-		
+	args = args[0:10]
+	for i, e in enumerate(args):
+		e = e.strip()
+		assert not e in log
+		log[e] = dict()
+		log[e]['ctl'] = analyze(e, ctl=True)	
+		log[e]['assay'] = analyze(e, ctl=False)
+		print(utilsm.jdumpf("./logs/{0}.json".format(i), log[e]) )
 	print(utilsm.jsonp(log))
 	
 
@@ -76,5 +83,5 @@ if __name__ == '__main__':
 	if '-utils' in args:
 		utils(args)
 	else:
-		main(args)
+		main(utilsm.linesf(args[0]))
 

@@ -57,7 +57,8 @@ class ENCODEChIP:
 
 		"""
 
-		hashed =  self.postprocessedfiles(base)
+		hashed =  self.postprocessedfiles(base, ctl=False)
+		hashed['ctl'] = self.postprocessedfiles(base, ctl=True) 
 		hashed['qc.html'] = glob.glob('{0}/call-qc_report/execution/qc.html'.format(base))
 		hashed['qc.json'] = glob.glob('{0}/call-qc_report/execution/qc.json'.format(base))
 		hashed['pval.signal.bigwig'] = glob.glob('{0}/call-macs2/*/execution/*pval.signal.bigwig'.format(base))
@@ -89,7 +90,7 @@ class ENCODEChIP:
 		logs = glob.glob(target)
 		return uniq(logs)
 
-	def postprocess(self, cromwell, ctl=False, pet=True):
+	def postprocess(self, cromwell, ctl, pet=True):
 		"""Function to post process analysis in `cromwell` dircetory
 
 		Args: 

@@ -5,16 +5,19 @@ set -eufx -o pipefail
 # this should be run on the container
 #   e.g. singularity exec -B $binds $image_sif $base/postprocess.sh $bamfile $fragmentsize
 #   $fragmentsize is required if bam is SET, otherwise it's not needed
-# to build bamstrip.jar
+# to build bamstrip.jar, use gradle version >= 5.6.2
 #   cd ../bamstrip; gradle build
 # then copy the bamstrip.jar built here
 
 bamfile=$1
+
 outdir="/projects/edcc_new/e/chip-may20/integrative_analysis_chip/encode-wrapper/temp-postprocess"
+outdir=$(dirname $bamfile)
 
 resources=$(dirname "${BASH_SOURCE[0]}")
 bin="/usr/local/bin"
 strippedbam="$outdir/$(basename $1 bam)noseq.bam"
+
 
 #  samtools view -bS - > out.bam # http://samtools.sourceforge.net/pipe.shtml
 
