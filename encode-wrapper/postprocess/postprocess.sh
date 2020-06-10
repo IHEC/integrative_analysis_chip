@@ -5,9 +5,8 @@ set -eufx -o pipefail
 # this should be run on the container
 #   e.g. singularity exec -B $binds $image_sif $base/postprocess.sh $bamfile $fragmentsize
 #   $fragmentsize is required if bam is SET, otherwise it's not needed
-# to build bamstrip.jar, use gradle version >= 5.6.2
-#   cd ../bamstrip; gradle build
-# then copy the bamstrip.jar built here
+# you will need to wget the bamstrip.jar in this directory
+#   wget http://www.epigenomes.ca/data/CEMT/resources/bamstrip.jar
 
 bamfile=$1
 
@@ -21,7 +20,7 @@ strippedbam="$outdir/$(basename $1 bam)noseq.bam"
 
 #  samtools view -bS - > out.bam # http://samtools.sourceforge.net/pipe.shtml
 
-$bin/samtools view -h $bamfile | java -jar $resources/bamstrip.jar | $bin/samtools view -hSb - > $strippedbam
+$bin/samtools view -h $bamfile | /usr/bin/java -jar $resources/bamstrip.jar | $bin/samtools view -hSb - > $strippedbam
 echo "#return:$? $strippedbam $1"                                                                                                                                    
 
 $bin/samtools index $strippedbam
