@@ -8,7 +8,7 @@ import postprocess # import post processing module
 image =  '/projects/edcc_new/e/chip-may20/integrative_analysis_chip/encode-wrapper/images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif'
 encode = postprocess.ENCODEChIP(image)
 encode.dryrun = False # set this to False to run the analysis, otherwise this will just echo the command it will run
-encode.dryrun = True
+#encode.dryrun = True
 
 
 def logerr(args):
@@ -66,7 +66,6 @@ def utils(args):
 def main(args):
 	
 	log = dict()
-	args = args[0:10]
 	for i, e in enumerate(args):
 		e = e.strip()
 		assert not e in log
@@ -74,7 +73,7 @@ def main(args):
 		log[e]['ctl'] = analyze(e, ctl=True)	
 		log[e]['assay'] = analyze(e, ctl=False)
 		print(utilsm.jdumpf("./logs/{0}.json".format(i), log[e]) )
-	print(utilsm.jsonp(log))
+	print(utilsm.jdumpf('log.json', log))
 	
 
 
