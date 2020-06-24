@@ -15,7 +15,20 @@ outdir=$(dirname $bamfile)
 
 resources=$(dirname "${BASH_SOURCE[0]}")
 bin="/usr/local/bin"
+
+
 strippedbam="$outdir/$(basename $1 bam)noseq.bam"
+bw=$outdir/$(basename $bamfile bam)raw.bigwig
+
+if [ -f "$strippedbam" ]; then
+  echo "#__exists:$strippedbam"
+  exit 1
+fi
+
+if [ -f "$bw" ]; then  
+  echo "#__exists:$bw"  
+  exit 1
+fi 
 
 
 #  samtools view -bS - > out.bam # http://samtools.sourceforge.net/pipe.shtml
@@ -28,7 +41,6 @@ $bin/samtools flagstat $strippedbam > "$strippedbam".flagstats
 
 echo "#flagstats ${strippedbam}.flagstats"
 
-bw=$outdir/$(basename $bamfile bam)raw.bigwig
 
 extendreads="--extendReads ${2:-}"
 

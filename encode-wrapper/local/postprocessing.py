@@ -1,8 +1,23 @@
 import utilsm
 import sys
-
+sys.path.append("..")
+import time
 import postprocess # import post processing module
 
+
+
+def logerr(args):
+	print(*args)
+
+def checkreadcounts(log):
+	nodupflagstats = utilsm.jloadf(log['files']['qc.json'][0])
+	return -1
+
+
+
+def tag():
+	current = time.ctime().split()
+	return ('-'.join(current[1:3] + [current[-1], current[-2]])).replace(':', '.')
 
 # singularity image to use for post processing
 image =  '/projects/edcc_new/e/chip-may20/integrative_analysis_chip/encode-wrapper/images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif'
@@ -11,13 +26,6 @@ encode.dryrun = False # set this to False to run the analysis, otherwise this wi
 #encode.dryrun = True
 
 
-def logerr(args):
-	print(*args)
-
-
-def checkreadcounts(log):
-	nodupflagstats = utilsm.jloadf(log['files']['qc.json'][0])
-	return -1
 
 def analyze(analysis_dir, ctl):
 	"""
@@ -36,7 +44,7 @@ def analyze(analysis_dir, ctl):
 	out = encode.postprocess(cromwell, ctl=ctl, pet=pair_end) # call post processing
 	out['files'] = encode.files(cromwell) # get list of filesi
 	if not out["postprocess.sh"]['return'] in [0]:
-		print('#', analysis_dir, 'failed')
+		print('#__failed__', analysis_dir)
 	return out
 
 
@@ -63,8 +71,11 @@ def utils(args):
 			Json.pp(files)
 
 
-def main(args):
-	
+def main(args, tagname=None):
+	tagname = '' if not tagname else '.{0}'.format(tagname) 
+	tasktag = tag() + tagname
+
+	logfile = "./{0}.json".format(tasktag)
 	log = dict()
 	for i, e in enumerate(args):
 		e = e.strip()
@@ -72,15 +83,24 @@ def main(args):
 		log[e] = dict()
 		log[e]['ctl'] = analyze(e, ctl=True)	
 		log[e]['assay'] = analyze(e, ctl=False)
-		print(utilsm.jdumpf("./logs/{0}.json".format(i), log[e]) )
-	print(utilsm.jdumpf('log.json', log))
+		print(utilsm.jdumpf("./logs/{1}.{0}.json".format(i, tasktag), log[e]) )
+	print(utilsm.jdumpf(logfile, log))
 	
-
+def cfg(args):
+	flags = [e for e in args if e[0] in '-']
+	values = [e for e in args if not e[0] in '-']
+	tag = None if not '-tag' in args else args[args.index('-tag') + 1]
+	if '-testpath' in flags:
+		flist = [args[0]]
+	else:
+		flist = utilsm.linesf(args[0])
+	return (flist, tag)
 
 if __name__ == '__main__':
 	args = sys.argv[1:]
 	if '-utils' in args:
 		utils(args)
 	else:
-		main(utilsm.linesf(args[0]))
+		flist, tagname = cfg(args) 
+		main(flist, tagname = tagname)
 
