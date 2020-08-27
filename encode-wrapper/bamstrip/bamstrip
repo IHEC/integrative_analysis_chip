@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -eufx -o pipefail       
+
+strippedbam="$(dirname $1)/$(basename $1 bam)noseq.gz"
+
+/usr/local/bin/samtools view -h $1 | cut -f 1,2,3,4,5,7,8,9 | gzip -6 > $strippedbam
+
+echo "#return:$? $strippedbam $1"                                                                                                                                    
+

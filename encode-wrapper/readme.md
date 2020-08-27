@@ -129,7 +129,7 @@ IHEC tests on Local mode can be run with:
 
 `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json`
 
-You can also use SLURM or PBS with; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
+You can also use SLURM or PBS with the pipeline; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
 `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`
 
@@ -139,7 +139,7 @@ The provided configuration files are for 75bp PET only. Standard configration fi
 
 For these tests, the running time can be 24 hours depending on hardware. 
 
-To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names.
+To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without the bam header as that may contain full paths names.
 
 As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `outdir=$PWD/cromwell-executions/chip/93de85aa-d581-48df-b8ae-a91a6e88a21f`. So do
 
@@ -190,5 +190,5 @@ The recommended workflow is to consider removing files from `delete.list` only (
 
 ## Running on cluster
 
-While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended that the analysis when submtting to cluster using slurm (or alternatives) just submit the the a shell script containing the  `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster (i.e. the job will run in Local mode on the node it's submitted to). Using `slurm` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity.   
+While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended that to run analysis on the cluster using slurm (or alternatives) just submit the a shell script containing the `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster (i.e. the job will run in Local mode on the node it's submitted to). Using `slurm_singularity` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity.   
 

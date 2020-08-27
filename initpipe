@@ -4,7 +4,8 @@ set -eufx -o pipefail
 
 cd encode-wrapper
 chmod +x ./get_encode_resources.sh
-./get_encode_resources.sh &> get_encode_resources.log
-python chip.py -get &> chip_get.log
-python  chip.py -pullimage -bindpwd &> chip_pull_image.log
-#apy chip.py -pullimage -bindpwd $PWD/v2/ihec &> chip_pull_image.log
+./get_encode_resources.sh &> ../get_encode_resources.log
+python chip.py -get &> ../chip_get.log
+python  chip.py -pullimage &> ../chip_pull_image.log
+
+chmod ugo+x ./*sh 

@@ -18,20 +18,15 @@ def base():
 
 
 def wget(url, debug=debug_mode):
-    logerr('getting: {}\n'.format(url))
-    if debug:
-        logerr(' ..debug: wget {0}\n'.format(url))
-        dumpf(os.path.basename(url), 'test:{0}'.format(url))
-        return
-    #p = subprocess.Popen('wget ' + url ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    #p = subprocess.Popen(['wget', url, '--directory-prefix', './test_data'] ,shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    #for line in p.stdout.readlines():
-    #    logerr(line)
-    p = subprocess.Popen('wget ' + url ,shell=True)
-    return p.wait()
-  
-   
-   
+	logerr('getting: {}\n'.format(url))
+	if debug:
+		logerr(' ..debug: wget {0}\n'.format(url))
+		dumpf(os.path.basename(url), 'test:{0}'.format(url))
+		return
+	p = subprocess.Popen('wget ' + url ,shell=True)
+	return p.wait()
+
+	
 def get_hg38_resources(home):
     base = os.path.abspath(os.getcwd())
     mkdirs('hg38_resources/genome_hg38/bwa_index')
@@ -250,6 +245,7 @@ def bindargs(args):
         else:
             return bindpwd + ',' + ','.join([ '{1}:/mnt/ext_{0}'.format(i + offset, e) for i,e in enumerate(params)])
     return binds
+
 
 def main(args):
     home = base()
