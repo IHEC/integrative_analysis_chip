@@ -62,6 +62,18 @@ This command will write:
 
 * trackoutput.sh
 
+If you are running in `Local` mode using `./chip.py -pullimage -bindpwd $PWD/data_b $PWD/data_a` will mount `$PWD/data_b` as `/mnt/ext_0`, `$PWD/data_a` as `/mnt/ext_1` and so on, and it binds `$PWD` to `$PWD`. If you are on older systems without support for overlayFS, then passing `-pwd2ext0` will bind `$PWD` `/mnt/ext_0` and shift other bind points further along `ext_$i`'s.
+
+For example,
+
+    python ./chip.py -pullimage -bindpwd -pwd2ext0 $PWD/v2/ihec
+
+will set up all binds so that after downloading the cemt0007 test data, you can just use `cemt0007_h3k27me3_mnt_ext_0.json` out of the box like:
+
+    $ ./singularity_wrapper.sh cemt0007_h3k27me3_mnt_ext_0.json
+
+without needing to do `chip.py -maketests` as later described.
+
 This will also create the singularity image in `./images`.
 
 Do `chmod +x ./*sh`.
