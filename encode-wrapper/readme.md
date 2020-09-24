@@ -90,9 +90,9 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 
 ### ENCODE tests
 
-To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.  If you are on HPC and prefer to use SLURM, do `./encode_test_tasks_run_ihec_slurm_singularity.sh <installation_dir> slurm_singularity try1` and for PBS do `./encode_test_tasks_run_ihec_pbs_singularity.sh <installation_dir> pbs_singularity try1`.
+To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.
 
-You will need atleast 10G of memory for running the encode tasks. 
+You will need atleast 10G of memory for running the encode test tasks. 
 
 Make sure all test pass, by looking through jsons generated. `./status_encode_tasks.py` can be used here.
 
