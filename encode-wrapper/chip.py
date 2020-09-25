@@ -186,7 +186,7 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
         "home_mnt": home_mnt,
         "bind_opt": "${3:-}",
         "backend_default" : "${2:-Local}",
-        "container" : container_mnt,   #os.path.abspath(container),
+        "container" : os.path.abspath(container),   #container_mnt,
         "wdl" : "{0}/v2/chip.wdl".format(home_mnt),
         "backend" : "{0}/backend.conf".format(home_mnt)
     }
