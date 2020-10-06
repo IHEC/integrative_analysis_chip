@@ -132,12 +132,12 @@ def write_testrun(config):
 
     encode_tests = [
         '#!/bin/bash\n\necho "home:$PWD"\n\nwhich singularity',
-        '\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} Local ${{@:1}}\n\n'
+        '\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/encode_test_tasks_run.sh {home_mnt} Local ${{1:-test}}\n\n'
     ]
     logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '\n'.join(encode_tests).format(**config)))
     mcf_tests = [
         '#!/bin/bash', 'echo "home:$PWD"', "which singularity", 'BACKEND="{backend_default}"',
-        '\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $BACKEND\n\n'
+        '\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $2 $BACKEND\n\n'
     ]
     logerrn(dumpf('./singularity_wrapper.sh', '\n'.join(mcf_tests).format(**config)))
 
@@ -187,7 +187,7 @@ def singularity_pull_image(home, config, binds, debug=debug_mode):
         "home" : home,
         "home_mnt": home_mnt,
         "bind_opt": "${3:-}",
-        "backend_default" : "${2:-Local}",
+        "backend_default" : "${3:-Local}",
         "container" : container_mnt,   #os.path.abspath(container),
         "wdl" : "{0}/v2/chip.wdl".format(home_mnt),
         "backend" : "{0}/backend.conf".format(home_mnt)
