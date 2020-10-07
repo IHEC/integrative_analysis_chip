@@ -88,6 +88,12 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 
 ## Running tests
 
+/!\ There ar two scripts for running the pipeline for two specific use cases:
+- `singularity_wrapper.sh` for a Local run only with a wrapper encapsulating the call of the pipeline inside the singularity image. Usage: `./singularity_wrapper.sh input.json output_dir` with output_dir optional, if not provided the output will be in the working directory.
+- `piperunner.sh` for either a Local use or a HPC use. Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`.
+
+To use custom ressources you can add to your input.json file specific sections. For Compute Canada Beluga users the file `compute_canada_beluga_ressources.json` is already defined; you can refer to this one for other HPCs.
+
 ### ENCODE tests
 
 To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.
