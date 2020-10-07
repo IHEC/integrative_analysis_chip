@@ -90,7 +90,7 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 
 /!\ There ar two scripts for running the pipeline for two specific use cases:
 - `singularity_wrapper.sh` for a Local run only with a wrapper encapsulating the call of the pipeline inside the singularity image. Usage: `./singularity_wrapper.sh input.json output_dir` with output_dir optional, if not provided the output will be in the working directory.
-- `piperunner.sh` for either a Local use or a HPC use. Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`.
+- `piperunner.sh` for either a Local use or a HPC use. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded (for Compute Canada users you can do `module load singularity/3.5 mugqic/java/openjdk-jdk1.8.0_72 mugqic/python/3.7.3`) Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`.
 
 To use custom ressources you can add to your input.json file specific sections. For Compute Canada Beluga users the file `compute_canada_beluga_ressources.json` is already defined; you can refer to this one for other HPCs.
 
