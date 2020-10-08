@@ -137,7 +137,7 @@ def write_testrun(config):
     logerrn('#written:' + dumpf('./singularity_encode_test_tasks.sh', '\n'.join(encode_tests).format(**config)))
     mcf_tests = [
         '#!/bin/bash', 'echo "home:$PWD"', "which singularity",
-        '\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 $2 Local\n\n'
+        '\nsingularity exec --cleanenv {additional_binds} {container_image} {home_mnt}/piperunner.sh $1 Local $2\n\n'
     ]
     logerrn(dumpf('./singularity_wrapper.sh', '\n'.join(mcf_tests).format(**config)))
 

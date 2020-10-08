@@ -1,12 +1,12 @@
 #!/bin/bash
 
 jobFile=$1
-if [[ $# -eq 2 ]]; then 
+BACKEND=$2
+if [[ $# -eq 3 ]]; then 
   OUTDIR="-Dbackend.providers.$BACKEND.config.root=$3"
 else
   OUTDIR=""
 fi
-BACKEND=$3
 
 CROMWELL_HOME="{home_mnt}"
 BACKEND_CONF="{backend}"

@@ -90,7 +90,7 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 
 /!\ There are two scripts for running the pipeline for two specific use cases:
 - `singularity_wrapper.sh` for a Local run only with a wrapper encapsulating the call of the pipeline inside the singularity image. Usage: `./singularity_wrapper.sh input.json output_dir` with output_dir optional, if not provided the output will be in the working directory.
-- `piperunner.sh` for either a Local use or a HPC use. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded (for Compute Canada users you can do `module load singularity/3.5 mugqic/java/openjdk-jdk1.8.0_72 mugqic/python/3.7.3`) Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`.
+- `piperunner.sh` for either a Local use or a HPC use. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded. For Compute Canada users you can add `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc` and then do `module load singularity/3.5 mugqic/java/openjdk-jdk1.8.0_72 mugqic/python/3.7.3`. Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`.
 
 To use custom ressources you can add to your input.json file specific sections. For Compute Canada Beluga users the file `compute_canada_beluga_ressources.json` is already defined; you can refer to this one for other HPCs.
 
@@ -137,9 +137,7 @@ IHEC tests on Local mode can be run with:
 
 You can also use SLURM or PBS with the pipeline; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
-`./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`
-
-`./piperunner_ihec_pbs_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json pbs_singularity h3k4me3_out` and `./piperunner_ihec_pbs_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json pbs_singularity h3k27me3_out`
+`./piperunner.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out` or replacing slurm_singularity by pbs_singularity for pbs HPCs.
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes.
 
