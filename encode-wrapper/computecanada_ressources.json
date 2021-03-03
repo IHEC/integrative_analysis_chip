@@ -1,0 +1,38 @@
+{
+    "_COMMENT.General": "Resources defined here are PER REPLICATE. Therefore, total number of cores will be MAX(chip.align_cpu x NUMBER_OF_REPLICATES, chip.call_peak_cpu x 2 x NUMBER_OF_REPLICATES) because align and call_peak (especially for spp) are bottlenecking tasks of the pipeline. Use this total number of cores if you manually qsub or sbatch your job (using local mode of Caper).",
+    "_COMMENT.General.Beluga": "The amount of mem per cpu is 4700M in Beluga so you can put \"chip.whatever_cpu\" x 4700 for any \"chip.whatever_mem_mb\".",
+
+    "chip.bwa_cpu": 15,
+    "chip.bwa_mem_mb": 70500,
+    "chip.bwa_time_hr": 24,
+
+    "chip.filter_cpu": 10,
+    "chip.filter_mem_mb": 47000,
+    "chip.filter_time_hr": 12,
+
+    "chip.bam2ta_cpu": 8,
+    "chip.bam2ta_mem_mb": 37600,
+    "chip.bam2ta_time_hr": 6,
+
+    "chip.spr_mem_mb": 18800,
+
+    "chip.fingerprint_cpu": 6,
+    "chip.fingerprint_mem_mb": 28200,
+    "chip.fingerprint_time_hr": 24,
+
+    "chip.xcor_cpu": 6,
+    "chip.xcor_mem_mb": 28200,
+    "chip.xcor_time_hr": 24,
+
+    "chip.macs2_mem_mb": 18800,
+    "chip.macs2_time_hr": 24,
+
+    "chip.spp_cpu": 2,
+    "chip.spp_mem_mb": 16000,
+    "chip.spp_time_hr": 24,
+
+    "_COMMENT.Java.general": "There are special parameters to control maximum Java heap memory (e.g. java -Xmx4G) for Picard tools. They are strings including size units. Such string will be directly appended to Java's parameter -Xmx. If these parameters are not defined then pipeline uses 90% of each task's memory (e.g. chip.filter_mem_mb).",
+    "chip.filter_picard_java_heap": "chip.filter_mem_mb",
+    "chip.align_trimmomatic_java_heap": "chip.align_mem_mb",
+    "chip.gc_bias_picard_java_heap": "10G"
+}

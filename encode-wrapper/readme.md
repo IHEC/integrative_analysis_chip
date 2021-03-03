@@ -18,9 +18,9 @@ By default it will use git over http. If you want to use ssh, then pass `ssh` as
 
 Run `python chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
 
-## Running on cluster
+## Running on cluster (Compute Canada included)
 
-For running on cluster with a SLURM or PBS etc see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1)
+For running on cluster with scheduler like SLURM or PBS, and Compute Canada details see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1).
 
 ## Memory requirements
 
@@ -90,9 +90,11 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 
 /!\ There are two scripts for running the pipeline for two specific use cases:
 - `singularity_wrapper.sh` for a Local run only with a wrapper encapsulating the call of the pipeline inside the singularity image. Usage: `./singularity_wrapper.sh input.json output_dir` with output_dir optional, if not provided the output will be in the working directory.
-- `piperunner.sh` for either a Local use or a HPC use. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded. For Compute Canada users you can add `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc` and then do `module load singularity/3.5 mugqic/java/openjdk-jdk1.8.0_72 mugqic/python/3.7.3`. Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`.
+<!-- - `piperunner.sh` for a Local use. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded. For Compute Canada users you can add `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc` and then do `module load singularity/3.5 mugqic/java/openjdk-jdk1.8.0_72 mugqic/python/3.7.3`. Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`. -->
+- `computecanada_wrapper.sh` for Compute Canada users. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded by adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc`. Usage: `./computecanada_wrapper.sh path/to/piperunner.sh input.json Local output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`.
 
-To use custom ressources you can add to your input.json file specific sections. For Compute Canada Beluga users the file `compute_canada_beluga_ressources.json` is already defined; you can refer to this one for other HPCs.
+To use custom ressources you can add to your input.json file specific sections. For Compute Canada users the file `compute_canada_ressources.json` is already defined; you can refer to this one for other HPCs.
+To merge the ressources.json and the input.json: `jq -s '.[0] * .[1]' input.json ressources.json > output_merged.json`
 
 ### ENCODE tests
 
@@ -138,6 +140,8 @@ IHEC tests on Local mode can be run with:
 You can also use SLURM or PBS with the pipeline; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
 `./piperunner.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out` or replacing slurm_singularity by pbs_singularity for pbs HPCs.
+
+For Compute Canada users: `./slurm_wrapper.sh piperunner.sh cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./slurm_wrapper.sh piperunner.sh cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`.
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes.
 
@@ -194,5 +198,17 @@ The recommended workflow is to consider removing files from `delete.list` only (
 
 ## Running on cluster
 
-While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended that to run analysis on the cluster using slurm (or alternatives) just submit the a shell script containing the `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster (i.e. the job will run in Local mode on the node it's submitted to). Using `slurm_singularity` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity.   
+While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended to run analysis on the cluster using slurm (or alternatives) just submit a shell script containing the `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster (i.e. the job will run in Local mode on the node it's submitted to). Using `slurm_singularity` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity.
 
+### Compute Canada
+
+If you are a Compute Canada user you can customize ressources for different steps by using the file compute_canada_ressources.json.
+To merge the ressources.json and the input.json: `jq -s '.[0] * .[1]' input.json compute_canada_beluga_ressources.json > output_merged.json`
+
+To setup the pipeline you need to do the following:
+- Adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc`.
+- Use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh`. Usage: `./computecanada_wrapper.sh piperunner.sh input.json Local output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`. This wrapper script is designed to use 20 cpu and 4700M of RAM per cpu (half a full node on Beluga), it can be customized to fit the user needs.
+
+To do ENCODE testing run: `./computecanada_encode_test_tasks.sh try1` instead of `./singularity_encode_test_tasks.sh try1` and then follow the standard procedure for checking results.
+
+To do MCF10A testing use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh` as follows: `./computecanada_wrapper.sh piperunner.sh ./v2/ihec/cemt0007_h3k4me3.json Local h3k4me3_out` and `./computecanada_wrapper.sh piperunner.sh ./v2/ihec/cemt0007_h3k27me3.json Local h3k27me3_out`, then follow the standard procedure for checking results.

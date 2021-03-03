@@ -2,7 +2,7 @@
 
 jobFile=$1
 BACKEND=$2
-if [[ $# -eq 3 ]]; then 
+if [[ $# -eq 3 ]]; then
   OUTDIR="-Dbackend.providers.$BACKEND.config.root=$3"
 else
   OUTDIR=""
