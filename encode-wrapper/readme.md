@@ -46,15 +46,7 @@ This command will write:
 
 * piperunner.sh
 
-* piperunner_ihec_slurm_singularity.sh
-
-* piperunner_ihec_pbs_singularity.sh
-
 * testrun_tasks.sh
-
-* testrun_tasks_ihec_slurm_singularity.sh
-
-* testrun_tasks_ihec_pbs_singularity.sh
 
 * singularity_encode_test_tasks.sh
 
@@ -137,11 +129,11 @@ IHEC tests on Local mode can be run with:
 
 `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json`
 
-You can also use SLURM or PBS with the pipeline; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
+<!-- You can also use SLURM or PBS with the pipeline; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
-`./piperunner.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out` or replacing slurm_singularity by pbs_singularity for pbs HPCs.
+`./piperunner.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out` or replacing slurm_singularity by pbs_singularity for pbs HPCs. -->
 
-For Compute Canada users: `./slurm_wrapper.sh piperunner.sh cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./slurm_wrapper.sh piperunner.sh cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`.
+For Compute Canada users: `./slurm_wrapper.sh piperunner.sh cemt0007_h3k4me3.json Local h3k4me3_out` and `./slurm_wrapper.sh piperunner.sh cemt0007_h3k27me3.json Local h3k27me3_out`.
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes.
 
@@ -207,8 +199,8 @@ To merge the ressources.json and the input.json: `jq -s '.[0] * .[1]' input.json
 
 To setup the pipeline you need to do the following:
 - Adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc`.
-- Use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh`. Usage: `./computecanada_wrapper.sh piperunner.sh input.json Local output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`. This wrapper script is designed to use 20 cpu and 4700M of RAM per cpu (half a full node on Beluga), it can be customized to fit the user needs.
+- Use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh`. Usage: `./computecanada_wrapper.sh singularity_wrapper.sh input.json output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`. This wrapper script is designed to use 20 cpu and 4700M of RAM per cpu (half a full node on Beluga), it can be customized to fit the user needs.
 
-To do ENCODE testing run: `./computecanada_encode_test_tasks.sh try1` instead of `./singularity_encode_test_tasks.sh try1` and then follow the standard procedure for checking results.
+To do ENCODE testing run: `./computecanada_encode_test_tasks.sh singularity_encode_test_tasks.sh try1` instead of `./singularity_encode_test_tasks.sh try1` and then follow the standard procedure for checking results.
 
-To do MCF10A testing use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh` as follows: `./computecanada_wrapper.sh piperunner.sh ./v2/ihec/cemt0007_h3k4me3.json Local h3k4me3_out` and `./computecanada_wrapper.sh piperunner.sh ./v2/ihec/cemt0007_h3k27me3.json Local h3k27me3_out`, then follow the standard procedure for checking results.
+To do MCF10A testing use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh` as follows: `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`, then follow the standard procedure for checking results.
