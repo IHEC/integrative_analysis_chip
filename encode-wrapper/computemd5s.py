@@ -32,9 +32,9 @@ def byino(fs):
 def md5script(hashed):
     def cmd(f):
         if f.strip().endswith('bam'):
-            return 'echo "{1} $(singularity exec -B $PWD ./images/chip_seq_pipeline_v1_1_4-sambamba-0.7.1-rev1.sif ./headlessbam_md5 {0})"'.format(f, os.path.basename(f))
+            return 'echo "{1} $(singularity exec -B $PWD ./images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif ./headlessbam_md5 {0})"'.format(f, os.path.basename(f))
         else:
-            return 'echo "{1} $(singularity exec -B $PWD ./images/chip_seq_pipeline_v1_1_4-sambamba-0.7.1-rev1.sif md5sum {0})"'.format(f, os.path.basename(f))
+            return 'echo "{1} $(singularity exec -B $PWD ./images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif md5sum {0})"'.format(f, os.path.basename(f))
 
     return [cmd(v) for v in sorted(hashed.values(), key= lambda x: os.path.basename(x))]
 
