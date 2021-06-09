@@ -85,8 +85,8 @@ For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/
 <!-- - `piperunner.sh` for a Local use. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded. For Compute Canada users you can add `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc` and then do `module load singularity/3.5 mugqic/java/openjdk-jdk1.8.0_72 mugqic/python/3.7.3`. Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`. -->
 - `computecanada_wrapper.sh` for Compute Canada users. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded by adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc`. Usage: `./computecanada_wrapper.sh path/to/piperunner.sh input.json Local output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`.
 
-To use custom ressources you can add to your input.json file specific sections. For Compute Canada users the file `compute_canada_ressources.json` is already defined; you can refer to this one for other HPCs.
-To merge the ressources.json and the input.json: `jq -s '.[0] * .[1]' input.json ressources.json > output_merged.json`
+To use custom resources you can add to your input.json file specific sections. For Compute Canada users the file `compute_canada_resources.json` is already defined; you can refer to this one for other HPCs.
+To merge the resources.json and the input.json: `jq -s '.[0] * .[1]' input.json resources.json > output_merged.json`
 
 ### ENCODE tests
 
@@ -194,8 +194,8 @@ While the slurm_backend as defined by the encode pipeline will/should work; howe
 
 ### Compute Canada
 
-If you are a Compute Canada user you can customize ressources for different steps by using the file compute_canada_ressources.json.
-To merge the ressources.json and the input.json: `jq -s '.[0] * .[1]' input.json compute_canada_beluga_ressources.json > output_merged.json`
+If you are a Compute Canada user you can customize resources for different steps by using the file compute_canada_resources.json.
+To merge the resources.json and the input.json: `jq -s '.[0] * .[1]' input.json computecanada_resources.json > output_merged.json`
 
 To setup the pipeline you need to do the following:
 - Adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc`.
