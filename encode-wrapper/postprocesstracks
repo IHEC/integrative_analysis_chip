@@ -1,0 +1,46 @@
+#!/bin/bash
+set -eufx -o pipefail
+
+
+
+
+
+if [ "$1" = "-debug" ]; then
+  bamfile="$PWD/cromwell-executions/chip/67359da1-c467-4789-bcc0-aa371cb521e1/call-filter/shard-0/execution/ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.nodup.bam"
+  ln -s $bamfile ./temp/ || true
+  bamfile="$PWD/temp/$(basename $bamfile)"
+  mode="PET"
+  binaries="$PWD"
+else
+  binaries="$1"  
+  mode="$2"
+  bamfile="$3" 
+fi
+
+echo $binaries $bamfile $mode
+
+chipimage="$binaries/images/chip_seq_pipeline_v1_1_4-sambamba-0_7_1-rev1.sif"
+bindpaths="$binaries,$(dirname $bamfile)"
+if [ "$mode" = "SET" ]; then
+   frag="$4"
+   bam2wigopts="-cs -x $frag $out $(dirname $bamfile)"
+   bw="$(dirname $bamfile)/$(basename $bamfile bam).set-$frag.bw"
+else 
+   bam2wigopts="-cp -out $(dirname $bamfile)"
+   bw="$(dirname $bamfile)/$(basename $bamfile bam).pet.bw"
+fi
+
+bam2wigsamtools="-samtools /usr/local/bin/samtools"
+chromsize=""
+
+strippedbam="$(dirname $bamfile)/$(basename $bamfile bam).stripped.bam"
+#/usr/local/bin/samtools view -h $bamfile > $strippedbam
+bw="$(dirname $bamfile)/$(basename $bamfile bam).bigwig" 
+
+
+
+
+#singularity exec --cleanenv -B $bindpaths $chipimage $binaries/stripbam $bamfile
+
+singularity exec --cleanenv -B $bindpaths $chipimage java -jar -Xmx10G $binaries/BAM2WIG-1.0.0.jar -bamFile $bamfile $bam2wigopts $bam2wigsamtools                                                                                                                                                                                                     
+singularity exec --cleanenv -B $bindpaths $chipimage $binaries/wigToBigWig   

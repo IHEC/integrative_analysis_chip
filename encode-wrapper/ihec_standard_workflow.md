@@ -1,4 +1,4 @@
-# IHEC ChIP-Seq standard workdlows
+# IHEC ChIP-Seq standard workdfows
 
 See the ENCODE reference for input format: https://github.com/ENCODE-DCC/chip-seq-pipeline2/blob/master/docs/input.md
 

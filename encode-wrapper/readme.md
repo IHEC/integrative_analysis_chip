@@ -8,7 +8,7 @@ This wrapper uses http://quay.io/encode-dcc/chip-seq-pipeline:v1.1.4
 
 ## IHEC Standard workflows
 
-Documemtation on how to define configs for IHEC standard workflows: [IHEC standard workflow](ihec_standard_workflow.md)
+Documentation on how to define configs for IHEC standard workflows: [IHEC standard workflow](ihec_standard_workflow.md)
 
 ## Downloading test data
 
@@ -16,23 +16,37 @@ First run `./get_encode_resources.sh` to get encode test dataset and hg38 genome
 
 By default it will use git over http. If you want to use ssh, then pass `ssh` as first argument.
 
-Run `chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
+Run `python chip.py -get` to get IHEC ChIP test data for MCF10A cell line.
+
+## Running on cluster (Compute Canada included)
+
+For running on cluster with scheduler like SLURM or PBS, and Compute Canada details see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1).
+
+## Memory requirements
+
+You will need 10G RAM for ENCODE tests and in excess of 60G for running the IHEC test dataset.  
+
+## QC reports
+
+The analysis will generate a `qc.json` file (as well as an html version) along with peak calls and aligned bam files. This file contains the needed qc metrics.
 
 ## Pulling Singularity image and generating wrapper scripts
 
-Check singularity version with `singularity --version` to make sure it's at least `2.5.2`.
+These scripts require `python 3.6.8` or higher. It's assumed that the the underlying OS supports `overlayfs` so paths that do not exist on the singularity can be mounted inside singularity (CentOS7 should work fine). CentOS6 does not have `overlayfs` support. If you need support for OS without `overlayfs` please make an issue.  
 
-Then run `python chip.py -pullimage -bindpwd`. `bindpwd` will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise see `-pwd2ext0` option that binds $PWD to `/mnt/ext_0`.
+Check singularity version with `singularity --version` to make sure it's at least `3.0.1`.
 
-This will write:
+Then run `python chip.py -pullimage -bindpwd`
+
+Then run `python chip.py -pullimage -bindpwd`. `bindpwd` will mount the current directory (equivalent to arguments `-B $PWD`). Note that this means singularity must be a recent enough version to be able to bind to directories that do not exist on the image, since your `$PWD` may not exist on the image. Otherwise passing `-pwd2ext0` binds $PWD to `/mnt/ext_0`.
+
+If additional paths are passed like `python chip.py -pullimage -bindpwd /some/directory_A /some/directory_B ...` then these will be mounted inside the image at `/mnt/ext_1`, `/mnt/ext_2` and so on. `/mnt/ext_0` is reserved for mounting `$PWD` if needed.   
+
+This command will write:
 
 * piperunner.sh
 
-* piperunner_ihec_slurm_singularity.sh
-
 * testrun_tasks.sh
-
-* testrun_tasks_ihec_slurm_singularity.sh
 
 * singularity_encode_test_tasks.sh
 
@@ -58,11 +72,27 @@ Do `chmod +x ./*sh`.
 
 You can pass `-nobuild` if you just want to regenerate the wrapper scripts without pulling the singularity image again.
 
-If you did not use `python ./chip.py -pullimage -bindpwd -pwd2ext0 $PWD/v2/ihec` then you will not be able to use `cemt0007_h3k*_mnt_ext_0.json` for tests, as the test data may not be mapped to `/ext/mnt_0`. See running tests below.
+`singularity_wrapper.sh` can be examined to see what mount points have been generated.
+
+For example `python chip.py -pullimage -bindpwd -nobuild $PWD/v2/ihec/test_data/` generates: 
+
+    singularity exec --cleanenv -B /usr/edcc/integrative_analysis_chip/encode-wrapper,/usr/edcc/integrative_analysis_chip/encode-wrapper/v2/ihec/test_data/:/mnt/ext_1 /usr/edcc/integrative_analysis_chip/encode-wrapper/images/chip_seq_pipeline_v1_1_4.sif /usr/edcc/integrative_analysis_chip/encode-wrapper/piperunner.sh $1 $BACKEND
 
 ## Running tests
 
-To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`.  If you are on HPC and prefer to use SLURM, do `./encode_test_tasks_run_ihec_slurm_singularity.sh <installation_dir> slurm_singularity try1`.
+<!-- /!\ There are two scripts for running the pipeline for two specific use cases:
+- `singularity_wrapper.sh` for a Local run only with a wrapper encapsulating the call of the pipeline inside the singularity image. Usage: `./singularity_wrapper.sh input.json output_dir` with output_dir optional, if not provided the output will be in the working directory. -->
+<!-- - `piperunner.sh` for a Local use. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded. For Compute Canada users you can add `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc` and then do `module load singularity/3.5 mugqic/java/openjdk-jdk1.8.0_72 mugqic/python/3.7.3`. Usage: `./piperunner.sh input.json backend output_dir` with backend being either Local, singularity, slurm_singularity or pbs_singularity and the output_dir behave the same as for `singularity_wrapper.sh`. -->
+<!-- - `computecanada_wrapper.sh` for Compute Canada users. However you need to ensure to have a python3, a java and a Singularity version 3 or above loaded, by adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc` you can access them. Usage: `./computecanada_wrapper.sh path/to/piperunner.sh input.json Local output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`. -->
+
+<!-- To use custom resources you can add to your `input.json` file specific sections. For Compute Canada users the file `compute_canada_resources.json` is already defined; you can refer to this one for other HPCs.
+To merge the `resources.json` and the `input.json` you can use the following: `jq -s '.[0] * .[1]' input.json resources.json > output_merged.json` -->
+
+### ENCODE tests
+
+To run ENCODE test tasks, do `./singularity_encode_test_tasks.sh try1` to run it locally. The first argument is the config argument to cromwell (see ENCODE pipeline documentation). The output of tests will be written in `test_tasks_results_try1`. For testing in Compute Canada see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1).
+
+You will need at least 10G of memory for running the encode test tasks. 
 
 Make sure all test pass, by looking through jsons generated. `./status_encode_tasks.py` can be used here.
 
@@ -87,7 +117,9 @@ Make sure all test pass, by looking through jsons generated. `./status_encode_ta
         "#ok": 14
     }
 
-Doing `python chip.py  -maketests` will write ChIP test configurations (you also need to pass `-pwd2ext0` if you set `$PWD` to `/ext/mnt_0`):
+### MCF10A tests
+
+For the MCF10A data downloaded with `python chip.py -get`, doing `python chip.py -maketests` will write ChIP test configurations (you also need to pass `-pwd2ext0` if you set `$PWD` to `/ext/mnt_0`):
 
 * ./v2/ihec/cemt0007_h3k4me3.json
 
@@ -95,19 +127,23 @@ Doing `python chip.py  -maketests` will write ChIP test configurations (you also
 
 IHEC tests on Local mode can be run with:
 
-`./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`
+`./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` and `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json`
 
-Or using SLURM with:
+<!-- You can also use SLURM or PBS with the pipeline; please see [cluster](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1) section. It's recommended that `singularity_runner.sh` is used instead for simplicity. 
 
-`./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner_ihec_slurm_singularity.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out`
+`./piperunner.sh ./v2/ihec/cemt0007_h3k4me3.json slurm_singularity h3k4me3_out` and `./piperunner.sh ./v2/ihec/cemt0007_h3k27me3.json slurm_singularity h3k27me3_out` or replacing slurm_singularity by pbs_singularity for pbs HPCs. -->
+
+For testing in Compute Canada see [this section](https://github.com/IHEC/integrative_analysis_chip/blob/dev-organize-output/encode-wrapper/readme.md#running-on-cluster-1).<!-- For Compute Canada users: `./slurm_wrapper.sh piperunner.sh cemt0007_h3k4me3.json Local h3k4me3_out` and `./slurm_wrapper.sh piperunner.sh cemt0007_h3k27me3.json Local h3k27me3_out`. -->
 
 The provided configuration files are for 75bp PET only. Standard configration files for SET and read lengths will be provided. The ENCODE documentation discusses other modes.
 
-To compute md5s of generated file, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without teh bam header as that may contain full paths names.
+For these tests, the running time can be 24 hours depending on hardware. 
 
-As an example, supose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `$PWD/h3k4me3_out`. So do
+To compute md5s of generated files, use `computemd5s.py <output_dir> <script_suffix>` with `<output_dir>` being the output directory of previous step and `<script_suffix>` being the suffix to add at file output basename `computemd5s_`. This will locate peak calls and bam files, and generate scripts to compute the md5s. Note the bam md5s are generated without the bam header as that may contain full paths names.
 
-    python computemd5s.py $PWD/h3k4me3_out test
+As an example, suppose output of `./singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json` is in `outdir=$PWD/cromwell-executions/chip/93de85aa-d581-48df-b8ae-a91a6e88a21f`. So do
+
+    python computemd5s.py $outdir test # the first must be the cromwell directory for the analysis, the second a suffix for the script
 	chmod +x ./computemd5s_test
 	./computemd5s_test > log_h3k4me3
 	python status_cemt.py log_h3k4me3 expected_md5s_h3k4me3.json 
@@ -137,14 +173,36 @@ This will match md5s for cemt0007 H3K4me3 analysis. And similarly for H3K27me3.
 
 ## Organizing ENCODE output
 
-See output of `./trackoutput.sh <cromwell_directory_for_analysis>` to see what files are to be copied over. `trackoutput.sh` will write following lists of files:
+See output of `./trackoutput.sh <cromwell_directory_for_analysis> -outdir:$outdir`  to see what files are to be copied over. `trackoutput.sh` will write following lists of files (in `$outdir`):
 
-    ./delete.list              # files okay to delete
+    ./delete.list              # files that are liklely candidate to deletetion delete
     ./masterfiles.list         # files that will be kept
     ./extraneous_cromwell.list # files that are likely extraneous cromwell files
     ./unresolvedfiles.list     # files that will be kept, but cannot be accessed as they may be hardlinks that cannot be resolved
     ./unexpectedfiles.list     # extraneous cromwell files that do not match patterns for expected cromwell files
 
-The recommended workflow if to remove files from `delete.list` only (in case diskspace is an issue). And then symlink files from `masterfiles.list` in an empty directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
+Cromwell generates large number of files by creating hardlinks; this script attempts to resolve these links and keeping only one copy of each. `./unresolvedfiles.list` contains hardlinks that the script is unable to resolve because of mount issues or other OS errors.  
 
 It's expected that `unresolvedfiles.list` and `unexpectedfiles.list` are empty. If they are not empty, the files listed there will need to be looked at. Please review files before deleting to ensure nothing useful is removed.
+
+The recommended workflow is to consider removing files from `delete.list` only (in case disk-space is an issue). And then symlink files from masterfiles.list (while keeping everything else) to a final analysis directory. So all files other than input files and intermediate bam files are still available inside the cromwell directory but the output directory is organized and free of extra logs files and scripts.
+
+
+## Running on cluster
+
+While the slurm_backend as defined by the encode pipeline will/should work; however, it's recommended to run analysis on the cluster using slurm (or alternatives) just submit a shell script containing the `./singularity_wrapper.sh $config` command. This means the entire job will run inside the container on one node on the cluster (i.e. the job will run in Local mode on the node it's submitted to). Using `slurm_singularity` backends (see [ENCODE documentation](https://encode-dcc.github.io/wdl-pipelines/install.html)) will mean cromwell will run on the head node (or where ever the job was launched from), and it will manage farming out each individual task to the cluster, with each task run in its own instance of singularity.
+
+### Compute Canada
+
+If you are a Compute Canada user you can customize resources for different steps by using the file compute_canada_resources.json.
+To merge the resources.json and the input.json: `jq -s '.[0] * .[1]' input.json computecanada_resources.json > output_merged.json`
+
+To setup the pipeline you need to do the following:
+- Load singularity by doing `module load singularity/3.7` and setup the default folder for pulling the image `mkdir -p /localscratch/$USER ; export SINGULARITY_TMPDIR=/localscratch/$USER`
+- Adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc`.
+- Pulling all the ressources needed for running the tests `./get_encode_resources.sh && python chip.py -get -pullimage -bindpwd -maketests && chmod +x *.sh`
+- Use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh`. Usage: `./computecanada_wrapper.sh singularity_wrapper.sh input.json output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`. This wrapper script is designed to use 20 CPUs and 4700M of RAM per CPU (half a full node on Beluga), it can be customized to fit the user needs.
+
+To do ENCODE testing run: `./computecanada_encode_test_tasks.sh singularity_encode_test_tasks.sh try1` instead of `./singularity_encode_test_tasks.sh try1` and then follow the standard procedure for checking results.
+
+To do MCF10A testing use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh` as follows: `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`, then follow the standard procedure for checking results (the checking scripts need sambamba, you can do `module load mugqic/sambamba` to have it available in your environment).

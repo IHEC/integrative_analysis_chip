@@ -1,0 +1,8 @@
+#!/bin/bash
+
+bam=$1 
+bw=$(dirname $1)/$(basename $bam bam)raw.bigwig
+
+/usr/local/bin/bamCoverage  --extendReads -b $bam -o $bw -of bigwig --binSize 1 --maxFragmentLength 1000 -p 4
+echo "#return:$? $bw $bam"
+

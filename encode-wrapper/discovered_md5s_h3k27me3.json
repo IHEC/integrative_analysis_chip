@@ -1,4 +1,10 @@
 {
+    "ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.bam": [
+        "49d5a923a8d93396a8c6246a04dad73f"
+    ],
+    "ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.nodup.bam": [
+        "3b12b605f9427d54855dfa0a9b5e154b"
+    ],
     "ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.nodup.pr1_x_ctl_for_rep1.pval0.01.500K.bfilt.narrowPeak.gz": [
         "bcb0870d7fb36b19aa6e5bcfb15d5074"
     ],
@@ -25,6 +31,15 @@
     ],
     "ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.nodup_x_ctl_for_rep1.pval0.01.500K.narrowPeak.gz": [
         "7a52f55148b47e2a48fac330e3672c96"
+    ],
+    "ChIP-Seq.IX1239-A26688-GGCTAC.134224.D2B0LACXX.2.1.merged.trim_50bp.bam": [
+        "b5baaa4f4276fa11f229cf160ab105b8"
+    ],
+    "ChIP-Seq.IX1239-A26691-TCATTC.134224.D2B0LACXX.2.1.merged.bam": [
+        "dc917c03981ff21d80c65e2951e10b08"
+    ],
+    "ChIP-Seq.IX1239-A26691-TCATTC.134224.D2B0LACXX.2.1.merged.nodup.bam": [
+        "dda5fa854b76f98b640481622b99e60c"
     ],
     "conservative_peak.narrowPeak.gz": [
         "63c4167fc1a01635967d2b35391966b5"

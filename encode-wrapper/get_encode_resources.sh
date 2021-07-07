@@ -24,6 +24,12 @@ ifNotThenWgetAndUntar(){
 ifNotThenWget https://github.com/broadinstitute/cromwell/releases/download/34/cromwell-34.jar
 chmod +rx cromwell-34.jar
 
+ifNotThenWget http://www.epigenomes.ca/resources/GSCtools/BAM2WIG-1.0.0.jar
+
+ifNotThenWget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/wigToBigWig 
+chmod +x ./wigToBigWig
+
+
 ifNotThenWgetAndUntar https://storage.googleapis.com/encode-pipeline-genome-data/test_genome_database_hg38_chip.tar
 
 ifNotThenWgetAndUntar https://storage.googleapis.com/encode-pipeline-test-samples/encode-chip-seq-pipeline/ENCSR936XTK/ENCSR936XTK_fastq_subsampled.tar
