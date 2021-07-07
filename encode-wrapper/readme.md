@@ -198,9 +198,11 @@ If you are a Compute Canada user you can customize resources for different steps
 To merge the resources.json and the input.json: `jq -s '.[0] * .[1]' input.json computecanada_resources.json > output_merged.json`
 
 To setup the pipeline you need to do the following:
+- Load singularity by doing `module load singularity/3.7` and setup the default folder for pulling the image `mkdir -p /localscratch/$USER ; export SINGULARITY_TMPDIR=/localscratch/$USER`
 - Adding `export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6` and `module use $MUGQIC_INSTALL_HOME/modulefiles` in your `.bashrc`.
+- Pulling all the ressources needed for running the tests `./get_encode_resources.sh && python chip.py -get -pullimage -bindpwd -maketests && chmod +x *.sh`
 - Use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh`. Usage: `./computecanada_wrapper.sh singularity_wrapper.sh input.json output_dir` with the output_dir behaving the same as for `singularity_wrapper.sh`. This wrapper script is designed to use 20 CPUs and 4700M of RAM per CPU (half a full node on Beluga), it can be customized to fit the user needs.
 
 To do ENCODE testing run: `./computecanada_encode_test_tasks.sh singularity_encode_test_tasks.sh try1` instead of `./singularity_encode_test_tasks.sh try1` and then follow the standard procedure for checking results.
 
-To do MCF10A testing use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh` as follows: `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`, then follow the standard procedure for checking results.
+To do MCF10A testing use `computecanada_wrapper.sh` instead of `singularity_wrapper.sh` as follows: `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k4me3.json h3k4me3_out` and `./computecanada_wrapper.sh singularity_wrapper.sh ./v2/ihec/cemt0007_h3k27me3.json h3k27me3_out`, then follow the standard procedure for checking results (the checking scripts need sambamba, you can do `module load mugqic/sambamba` to have it available in your environment).
