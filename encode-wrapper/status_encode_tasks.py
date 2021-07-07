@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from utilsm import * 
 import sys
 import glob
